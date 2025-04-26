@@ -1,0 +1,10 @@
+flight-settings:
+  default:
+    distance: 10
+    duration: 10
+  vip:
+    distance: 20
+    duration: 20
+  elite:
+    distance: 30
+    duration: 30

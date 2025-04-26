@@ -1,0 +1,8 @@
+name: ConduitFlyv2
+version: '1.0-SNAPSHOT'
+main: org.ogsammaenr.conduitFlyv2.ConduitFlyv2
+api-version: '1.21'
+permissions:
+  conduitfly.bypassconduit:
+    description: Oyuncu conduit mesafesi kontrolünden muaf olur.
+    default: false
