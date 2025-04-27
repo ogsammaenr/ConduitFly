@@ -1,11 +1,13 @@
 org\ogsammaenr\conduitFlyv2\listeners\ConduitListener$1.class
-org\ogsammaenr\conduitFlyv2\manager\FlightManager.class
 org\ogsammaenr\conduitFlyv2\manager\ConduitCache.class
 org\ogsammaenr\conduitFlyv2\listeners\ConduitListener$FlightSettings.class
+org\ogsammaenr\conduitFlyv2\settings\RankSettingsManager.class
 org\ogsammaenr\conduitFlyv2\tasks\FlightCheckTask.class
 org\ogsammaenr\conduitFlyv2\listeners\ConduitListener.class
 org\ogsammaenr\conduitFlyv2\listeners\IslandEventListener.class
 org\ogsammaenr\conduitFlyv2\util\IslandUtils.class
 org\ogsammaenr\conduitFlyv2\ConduitFlyv2.class
 org\ogsammaenr\conduitFlyv2\manager\ConduitStorage.class
+org\ogsammaenr\conduitFlyv2\manager\PermissionManager.class
+org\ogsammaenr\conduitFlyv2\settings\RankSettings.class
 org\ogsammaenr\conduitFlyv2\tasks\FlightTimeTask.class

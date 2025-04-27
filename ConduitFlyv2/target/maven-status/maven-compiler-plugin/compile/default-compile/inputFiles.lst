@@ -3,7 +3,9 @@ C:\Users\osman\OneDrive\Masaüstü\ConduitFlyv2\src\main\java\org\ogsammaenr\con
 C:\Users\osman\OneDrive\Masaüstü\ConduitFlyv2\src\main\java\org\ogsammaenr\conduitFlyv2\listeners\IslandEventListener.java
 C:\Users\osman\OneDrive\Masaüstü\ConduitFlyv2\src\main\java\org\ogsammaenr\conduitFlyv2\manager\ConduitCache.java
 C:\Users\osman\OneDrive\Masaüstü\ConduitFlyv2\src\main\java\org\ogsammaenr\conduitFlyv2\manager\ConduitStorage.java
-C:\Users\osman\OneDrive\Masaüstü\ConduitFlyv2\src\main\java\org\ogsammaenr\conduitFlyv2\manager\FlightManager.java
+C:\Users\osman\OneDrive\Masaüstü\ConduitFlyv2\src\main\java\org\ogsammaenr\conduitFlyv2\manager\PermissionManager.java
+C:\Users\osman\OneDrive\Masaüstü\ConduitFlyv2\src\main\java\org\ogsammaenr\conduitFlyv2\settings\RankSettings.java
+C:\Users\osman\OneDrive\Masaüstü\ConduitFlyv2\src\main\java\org\ogsammaenr\conduitFlyv2\settings\RankSettingsManager.java
 C:\Users\osman\OneDrive\Masaüstü\ConduitFlyv2\src\main\java\org\ogsammaenr\conduitFlyv2\tasks\FlightCheckTask.java
 C:\Users\osman\OneDrive\Masaüstü\ConduitFlyv2\src\main\java\org\ogsammaenr\conduitFlyv2\tasks\FlightTimeTask.java
 C:\Users\osman\OneDrive\Masaüstü\ConduitFlyv2\src\main\java\org\ogsammaenr\conduitFlyv2\util\IslandUtils.java

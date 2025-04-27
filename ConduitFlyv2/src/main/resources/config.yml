@@ -1,10 +1,19 @@
-flight-settings:
+ranks:
   default:
-    distance: 10
+    permission: "conduitfly.default"
+    radius: 10.5
     duration: 10
+    prevent-fall-damage: true
   vip:
-    distance: 20
-    duration: 20
+    permission: "conduitfly.vip"
+    radius: 20.0
+    duration: 15
+    prevent-fall-damage: true
   elite:
-    distance: 30
+    permission: "conduitfly.elite"
+    radius: 40.0
     duration: 30
+    prevent-fall-damage: false
+
+conduit:
+  material: "CONDUIT"

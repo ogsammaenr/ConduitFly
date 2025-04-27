@@ -11,6 +11,7 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.ogsammaenr.conduitFlyv2.ConduitFlyv2;
 import org.ogsammaenr.conduitFlyv2.manager.ConduitCache;
 import org.ogsammaenr.conduitFlyv2.manager.ConduitStorage;
 import org.ogsammaenr.conduitFlyv2.util.IslandUtils;
@@ -27,11 +28,11 @@ public class ConduitListener implements Listener {
 
     /**************************************************************************************************************/
     //  Constructor metodu
-    public ConduitListener(ConduitStorage conduitStorage, ConduitCache conduitCache, Material conduitMaterial, JavaPlugin plugin) {
-        this.conduitStorage = conduitStorage;
-        this.conduitCache = conduitCache;
+    public ConduitListener(ConduitFlyv2 plugin) {
+        this.conduitStorage = plugin.getConduitStorage();
+        this.conduitCache = plugin.getConduitCache();
         this.plugin = plugin;
-        this.conduitMaterial = conduitMaterial;
+        this.conduitMaterial = Material.valueOf(plugin.getConfig().getString("conduit.material", "CONDUIT"));
 
         /*  Cache 'i periyodik olarak yml dosyasına kaydet  */
         new BukkitRunnable() {
@@ -80,7 +81,7 @@ public class ConduitListener implements Listener {
             Island island = optionalIsland.get();
             String uuid = island.getUniqueId();
 
-            Location location = event.getBlock().getLocation();
+            Location location = event.getBlock().getLocation().add(0.5, 0.0, 0.5);
 
             conduitCache.removeConduit(uuid, location);
             if (!conduitCache.isPlayerNearAnyConduit(player, 10.5)) {

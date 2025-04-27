@@ -4,6 +4,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.ogsammaenr.conduitFlyv2.ConduitFlyv2;
+import org.ogsammaenr.conduitFlyv2.settings.RankSettings;
+import org.ogsammaenr.conduitFlyv2.settings.RankSettingsManager;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -13,20 +15,38 @@ import java.util.UUID;
 public class FlightTimeTask extends BukkitRunnable {
 
     private final ConduitFlyv2 plugin;
+    private final RankSettingsManager rankSettingsManager;
 
     private final Map<UUID, Long> flyingPlayers = new HashMap<>();
-    private final long flightDuration;
+
 
     public FlightTimeTask(ConduitFlyv2 plugin) {
         this.plugin = plugin;
-        // Config'ten uçuş süresi alınıyor
-        this.flightDuration = plugin.getConfig().getLong("flight-time.duration", 10) * 1000; // saniye cinsinden alınıyor, ms'ye çevriliyor
+        this.rankSettingsManager = plugin.getRankSettingsManager();
+
+    }
+
+    public Map<UUID, Long> getFlyingPlayers() {
+        return flyingPlayers;
     }
 
     // Uçuş başlatma
     public void startFlight(Player player) {
-        flyingPlayers.put(player.getUniqueId(), System.currentTimeMillis());
-        player.sendMessage("§aUçuş başladı! Süre: " + (flightDuration / 1000) + " saniye.");
+        String permission = player.getEffectivePermissions().stream()
+                .filter(perm -> perm.getPermission().startsWith("conduitfly."))
+                .filter(perm -> perm.getValue()) // SADECE TRUE OLANLAR
+                .map(perm -> perm.getPermission())
+                .findFirst()
+                .orElse("conduitfly.default");
+
+        RankSettings rankSettings = rankSettingsManager.getRankSettingsByPermission(permission);
+
+        if (rankSettings != null) {
+            long duration = rankSettings.getDuration();
+
+            flyingPlayers.put(player.getUniqueId(), System.currentTimeMillis());
+            player.sendMessage("§aUçuş başladı! Süre: " + duration + " saniye.");
+        }
     }
 
     @Override
@@ -43,16 +63,35 @@ public class FlightTimeTask extends BukkitRunnable {
                 iterator.remove();
                 continue;
             }
+            if (player.isOnGround()) {
+                iterator.remove();
+                player.sendMessage("yere indin süre sıfırlandı");
+            }
 
-            // Eğer belirli bir süre geçmişse uçuşu kapat
-            if (now - startTime >= flightDuration) {
-                if (player.isFlying()) {
-                    player.setAllowFlight(false);
-                    player.setFlying(false);
-                    iterator.remove(); // uçuş bitince oyuncu listeden çıkarılır
-                    player.sendMessage("§cUçuş süreniz doldu, uçuş kapatıldı.");
+            String permission = player.getEffectivePermissions().stream()
+                    .filter(perm -> perm.getPermission().startsWith("conduitfly."))
+                    .filter(perm -> perm.getValue()) // SADECE TRUE OLANLAR
+                    .map(perm -> perm.getPermission())
+                    .findFirst()
+                    .orElse("conduitfly.default");
+
+            RankSettings rankSettings = rankSettingsManager.getRankSettingsByPermission(permission);
+
+            if (rankSettings != null) {
+                long maxDuration = rankSettings.getDuration();
+
+
+                // Eğer belirli bir süre geçmişse uçuşu kapat
+                if (now - startTime >= maxDuration * 1000) {
+                    if (player.isFlying()) {
+                        player.setAllowFlight(false);
+                        player.setFlying(false);
+                        iterator.remove(); // uçuş bitince oyuncu listeden çıkarılır
+                        player.sendMessage("§cUçuş süreniz doldu, uçuş kapatıldı.");
+                    }
                 }
             }
         }
     }
+
 }
