@@ -2,3 +2,9 @@ name: ConduitFlyv2
 version: '1.0-SNAPSHOT'
 main: org.ogsammaenr.conduitFlyv2.ConduitFlyv2
 api-version: '1.21'
+commands:
+  conduitfly:
+    description: ConduitFly ana komutu
+    usage: /<command> [reload|help]
+    permission: conduitfly.use
+    permission-message: §cBu komutu kullanmak için yetkin yok.

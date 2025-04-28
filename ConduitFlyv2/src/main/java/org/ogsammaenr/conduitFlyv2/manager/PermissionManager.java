@@ -19,6 +19,13 @@ public class PermissionManager {
     /**************************************************************************************************************/
     //  Configdeki permler oluşturulur
     public void loadPermissions() {
+        for (Permission permission : pm.getPermissions()) {
+            if (permission.getName().startsWith("conduitfly.")) {
+                pm.removePermission(permission);
+                plugin.getLogger().info("Removed old permission: " + permission.getName());
+            }
+        }
+
         /* Eğer config'te ranks kısmı yoksa işlem yapma */
         if (!plugin.getConfig().isConfigurationSection("ranks")) {
             return;
@@ -36,19 +43,46 @@ public class PermissionManager {
             String defStr = plugin.getConfig().getString(base + "permissionDefault", "false");
             PermissionDefault defVal = PermissionDefault.getByName(defStr.toUpperCase());
 
-            /*      veriler ile bir permission nesnesi oluşturulur*/
-            Permission p = new Permission(permission, description, defVal);
-            pm.addPermission(p);
+            if (permission == null || permission.isEmpty()) {
+                plugin.getLogger().warning("Permission is missing for rank: " + rankKey);
+                continue;
+            }
 
-            plugin.getLogger().info("Loaded permission for rank: " + rankKey + " with permission: " + permission);
+            /*      veriler ile bir permission nesnesi oluşturulur      */
+            if (pm.getPermission(permission) == null) {
+                Permission p = new Permission(permission, description, defVal);
+                pm.addPermission(p);
+                plugin.getLogger().info("Loaded permission for rank: " + rankKey + " with permission: " + permission);
+            } else {
+                plugin.getLogger().info("Permission already exists for rank: " + rankKey + " with permission: " + permission);
+            }
         }
 
+        /**--------------------------------------------------------------------------------------*/
         /*      bypassconduit permini oluşturur (configden alınmaz)      */
-        Permission p = new Permission("conduitfly.bypassconduit", "bypass conduit", PermissionDefault.FALSE);
-        pm.addPermission(p);
-        plugin.getLogger().info("Loaded permissions for conduit: bypassconduit with permission: conduitfly.bypassconduit");
+        String bypassPermission = "conduitfly.bypassconduit";
+        if (pm.getPermission(bypassPermission) == null) {
+            Permission pBypassConduit = new Permission(bypassPermission, "Bypass conduit", PermissionDefault.FALSE);
+            pm.addPermission(pBypassConduit);
+            plugin.getLogger().info("Loaded permission: " + bypassPermission);
+        } else {
+            plugin.getLogger().info("Permission already exists: " + bypassPermission);
+        }
 
+        /**--------------------------------------------------------------------------------------*/
+        /*      reload permini oluşturur (configden alınmaz)        */
+
+        String reloadPermission = "conduitfly.reload";
+        if (pm.getPermission(reloadPermission) == null) {
+            Permission pReload = new Permission(reloadPermission, "Reload plugin", PermissionDefault.OP);
+            pm.addPermission(pReload);
+            plugin.getLogger().info("Loaded permission: " + reloadPermission);
+        } else {
+            plugin.getLogger().info("Permission already exists: " + reloadPermission);
+        }
+        /**--------------------------------------------------------------------------------------*/
         /*      Conduit materyalinin verisini al        */
+
         String conduitMaterial = plugin.getConfig().getString("conduit.material", "CONDUIT");
         plugin.getLogger().info("Conduit material is set to: " + conduitMaterial);
     }

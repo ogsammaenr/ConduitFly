@@ -1,8 +1,10 @@
 package org.ogsammaenr.conduitFlyv2;
 
+import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.ogsammaenr.conduitFlyv2.commands.MainCommand;
 import org.ogsammaenr.conduitFlyv2.listeners.ConduitListener;
 import org.ogsammaenr.conduitFlyv2.listeners.IslandEventListener;
 import org.ogsammaenr.conduitFlyv2.manager.ConduitCache;
@@ -18,6 +20,9 @@ public final class ConduitFlyv2 extends JavaPlugin {
     private ConduitStorage conduitStorage;
     private FlightTimeTask flightTimeTask;
     private RankSettingsManager rankSettingsManager;
+    private FileConfiguration config;
+    private PermissionManager permissionManager;
+    private ConduitListener conduitListener;
 
 
     /**************************************************************************************************************/
@@ -26,7 +31,7 @@ public final class ConduitFlyv2 extends JavaPlugin {
     public void onEnable() {
         // Config dosyasını yükle
         saveDefaultConfig();
-        FileConfiguration config = getConfig();
+        this.config = getConfig();
 
         new PermissionManager(this).loadPermissions();
 
@@ -36,6 +41,9 @@ public final class ConduitFlyv2 extends JavaPlugin {
         this.conduitCache = new ConduitCache(this);
         this.conduitStorage = new ConduitStorage(this, conduitCache);
         this.flightTimeTask = new FlightTimeTask(this);
+        this.permissionManager = new PermissionManager(this);
+        this.conduitListener = new ConduitListener(this);
+
 
         /*  dünyalar yüklendikten sonra dosyadaki veriler belleğe yüklenir*/
         getServer().getScheduler().runTask(this, () -> {
@@ -45,10 +53,12 @@ public final class ConduitFlyv2 extends JavaPlugin {
 
         /*  diğer sınıfların kaydı yapılır  */
         PluginManager pm = getServer().getPluginManager();
-        pm.registerEvents(new ConduitListener(this), this);
+        pm.registerEvents(conduitListener, this);
         pm.registerEvents(new IslandEventListener(conduitCache, conduitStorage), this);
         pm.registerEvents(new FlightCheckTask(this), this);
         flightTimeTask.runTaskTimer(this, 20L, 20L);
+
+        getCommand("conduitfly").setExecutor(new MainCommand(this));
 
         /*  sunucunun başladığını konsolda belirtir  */
         getLogger().info("*******ConduitFlyv2 enabled!*******");
@@ -86,5 +96,26 @@ public final class ConduitFlyv2 extends JavaPlugin {
     public RankSettingsManager getRankSettingsManager() {
         return rankSettingsManager;
     }
+
     /**************************************************************************************************************/
+    //  plugini reloadlar
+    public void reloadPlugin() {
+        reloadConfig(); // config.yml yeniden yükleniyor
+
+        this.permissionManager = new PermissionManager(this);
+        permissionManager.loadPermissions();
+
+        rankSettingsManager = new RankSettingsManager(getConfig(), this); // Rank ayarlarını yeniden kuruyoruz
+
+        Material material = Material.matchMaterial(getConfig().getString("conduit.material"));
+
+        if (material == null) {
+            getLogger().warning("Geçersiz conduit materyali bulundu! Default olarak CONDUIT kullanılacak.");
+            material = Material.CONDUIT;
+        }
+
+        conduitListener.updateConduitMaterial(material);
+
+        getLogger().info("ConduitFly ayarları başarıyla yeniden yüklendi!");
+    }
 }
