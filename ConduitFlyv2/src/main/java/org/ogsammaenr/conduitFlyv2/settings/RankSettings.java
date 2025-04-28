@@ -6,13 +6,19 @@ public class RankSettings {
     private final double radius;
     private final long duration;
     private final boolean preventFallDamage;
+    private final int priority;
 
-    public RankSettings(String permission, double radius, long duration, boolean preventFallDamage) {
+    /**************************************************************************************************************/
+    //  constructor metodu
+    public RankSettings(String permission, double radius, long duration, boolean preventFallDamage, int priority) {
         this.permission = permission;
         this.radius = radius;
         this.duration = duration;
         this.preventFallDamage = preventFallDamage;
+        this.priority = priority;
     }
+
+    /*=================== GETTERLAR =====================*/
 
     public String getPermission() {
         return permission;
@@ -29,4 +35,9 @@ public class RankSettings {
     public boolean shouldPreventFallDamage() {
         return preventFallDamage;
     }
+
+    public int getPriority() {
+        return priority;
+    }
+    /*=================================================*/
 }

@@ -1,6 +1,5 @@
 org\ogsammaenr\conduitFlyv2\listeners\ConduitListener$1.class
 org\ogsammaenr\conduitFlyv2\manager\ConduitCache.class
-org\ogsammaenr\conduitFlyv2\listeners\ConduitListener$FlightSettings.class
 org\ogsammaenr\conduitFlyv2\settings\RankSettingsManager.class
 org\ogsammaenr\conduitFlyv2\tasks\FlightCheckTask.class
 org\ogsammaenr\conduitFlyv2\listeners\ConduitListener.class

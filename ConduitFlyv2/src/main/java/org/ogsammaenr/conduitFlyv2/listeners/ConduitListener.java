@@ -2,8 +2,6 @@ package org.ogsammaenr.conduitFlyv2.listeners;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -84,11 +82,7 @@ public class ConduitListener implements Listener {
             Location location = event.getBlock().getLocation().add(0.5, 0.0, 0.5);
 
             conduitCache.removeConduit(uuid, location);
-            if (!conduitCache.isPlayerNearAnyConduit(player, 10.5)) {
-                player.setAllowFlight(false);
-                player.setFlying(false);
-                player.sendMessage("conduit kırıldı uçuş bitti");
-            }
+
             player.sendMessage("§cConduit kırıldı.");
         }
     }
@@ -99,55 +93,4 @@ public class ConduitListener implements Listener {
         this.conduitMaterial = material;
     }
 
-    /**************************************************************************************************************/
-    // Bu metod uçuş mesafesi/süresi gibi bilgileri alır ama direkt uçuş vermez.
-    public FlightSettings getFlightSettings(Player player) {
-        String permissionKey = getPlayerPermissionKey(player);
-        FileConfiguration config = plugin.getConfig();
-        ConfigurationSection section = config.getConfigurationSection("flight-settings");
-
-        int distance = 10; // default değer
-        int duration = 10; // default değer
-
-        if (section != null) {
-            distance = section.getInt(permissionKey + ".distance", distance);
-            duration = section.getInt(permissionKey + ".duration", duration);
-        }
-
-        return new FlightSettings(distance, duration);
-    }
-
-    /**************************************************************************************************************/
-    //  oyuncunun permini verir
-    private String getPlayerPermissionKey(Player player) {
-        FileConfiguration config = plugin.getConfig();
-        ConfigurationSection section = config.getConfigurationSection("flight-settings");
-
-        if (section == null) {
-            return "default";
-        }
-
-        for (String key : section.getKeys(false)) {
-            if (key.equalsIgnoreCase("default")) continue;
-
-            String permissionNode = "conduit-fly." + key;
-            if (player.hasPermission(permissionNode)) {
-                return key;
-            }
-        }
-
-        return "default";
-    }
-
-    /**************************************************************************************************************/
-    //  oyuncunun verileri için bir nesne
-    public static class FlightSettings {
-        public final int distance;
-        public final int duration;
-
-        public FlightSettings(int distance, int duration) {
-            this.distance = distance;
-            this.duration = duration;
-        }
-    }
 }

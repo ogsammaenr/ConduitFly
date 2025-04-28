@@ -22,61 +22,63 @@ public class FlightCheckTask implements Listener {
     private final ConduitCache conduitCache;
     private final RankSettingsManager rankSettingsManager;
 
-    private static final double DEFAULT_RADIUS = 10.5; // Şu anda sabit 10 blok
-
+    /**************************************************************************************************************/
+    //  Constructor metodu
     public FlightCheckTask(ConduitFlyv2 plugin) {
         this.plugin = plugin;
         this.conduitCache = plugin.getConduitCache();
         this.rankSettingsManager = plugin.getRankSettingsManager();
     }
 
+    /**************************************************************************************************************/
+    //  Oyuncu hareket ettiğinde çalışır
     @EventHandler
     public void onPlayerMove(PlayerMoveEvent event) {
         Player player = event.getPlayer();
 
-        plugin.getLogger().info(player.getName() + " hareket etti!");
-
-        // Konum değişikliği olup olmadığını kontrol et (Kafa çevirmeyi dikkate alma)
-        if (event.getFrom().getBlockX() == event.getTo().getBlockX() &&
-                event.getFrom().getBlockY() == event.getTo().getBlockY() &&
-                event.getFrom().getBlockZ() == event.getTo().getBlockZ()) {
-            // Eğer konum değişmediyse, yani oyuncu sadece kafa çevirdiyse, işlem yapma
-            return;
-        }
-
+        /*      çeşitli kontroller      */
         if (shouldIgnore(player)) {
             plugin.getLogger().info(player.getName() + " shouldIgnore sonucu: true");
             return;
         }
 
-        String permission = player.getEffectivePermissions().stream()
-                .filter(perm -> perm.getPermission().startsWith("conduitfly."))
-                .filter(perm -> perm.getValue()) // SADECE TRUE OLANLAR
-                .map(perm -> perm.getPermission())
-                .findFirst()
-                .orElse("conduitfly.default");
+        /*      Konum değişikliği olup olmadığını kontrol et (Kafa çevirmeyi dikkate alma)       */
+        if (event.getFrom().getBlockX() == event.getTo().getBlockX() &&
+                event.getFrom().getBlockY() == event.getTo().getBlockY() &&
+                event.getFrom().getBlockZ() == event.getTo().getBlockZ()) {
+            return;
+        }
 
-        RankSettings rankSettings = rankSettingsManager.getRankSettingsByPermission(permission);
+
+
+        /*      oyuncunun adasında conduit var mı       */
+        if (!conduitCache.hasConduitInIsland(player)) {
+            plugin.getLogger().info(player.getName() + " adasında conduit bulunamadı.");
+            if (player.getAllowFlight()) {
+                player.setAllowFlight(false);
+                player.setFlying(false);
+            }
+            return;
+        }
+
+        /*          ------perm kontrolü------            */
+
+        String playerPermission = rankSettingsManager.getPermission(player);
+
+        RankSettings rankSettings = rankSettingsManager.getRankSettingsByPermission(playerPermission);
+
+        /*      oyuncunun rütbesi varsa çalışır         */
 
         if (rankSettings != null) {
             double maxDistance = rankSettings.getRadius();
 
+            /*      konsola gerekli bilgilendirmeleri gönderir      */
             plugin.getLogger().info(player.getName() + " için uçuş kontrolü yapılıyor. Mesafe: " + maxDistance);
             plugin.getLogger().info("Oyuncunun rütbesi: " + (rankSettings != null ? rankSettings.getPermission() : "Bulunamadı"));
 
-            // Oyuncunun bulunduğu adada conduit var mı?
-            if (!conduitCache.hasConduitInIsland(player)) {
-                plugin.getLogger().info(player.getName() + " adasında conduit bulunamadı.");
-                // Eğer ada yoksa uçuş iznini kapat
-                if (player.getAllowFlight()) {
-                    player.setAllowFlight(false);
-                    player.setFlying(false);
-                }
-                return;
-            }
 
-            // Conduit alanına yakın mı kontrol et
-            boolean nearConduit = conduitCache.isPlayerNearAnyConduit(player, maxDistance);  // Mesafeyi burada kontrol et
+            /*      oyuncu conduite yeteri kadar yakın mı       */
+            boolean nearConduit = conduitCache.isPlayerNearAnyConduit(player, maxDistance);
             plugin.getLogger().info(player.getName() + " conduit yakınlığı: " + nearConduit);
             if (nearConduit) {
                 if (!player.getAllowFlight() && player.isOnGround()) {
@@ -91,39 +93,49 @@ public class FlightCheckTask implements Listener {
         }
     }
 
+    /**************************************************************************************************************/
+    //  oyuncu uçmaya çalıştığında çalışır
     @EventHandler
     public void onPlayerToggleFlight(PlayerToggleFlightEvent event) {
         Player player = event.getPlayer();
 
-
+        /*      çeşitli kontroller      */
         if (shouldIgnore(player)) {
             return;
         }
 
-        // Eğer oyuncu zaten uçuyorsa, uçuşu tekrar başlatma
+        /*      uçan oyuncuların verilerini getirir     */
         Map<UUID, Long> flyingPlayers = plugin.getFlightTimeTask().getFlyingPlayers();
+
+        /*      oyuncu zaten uçuyorsa tekrar kontol etmez       */
         if (flyingPlayers.containsKey(player.getUniqueId())) {
             return;
         }
 
+        /*      oyuncu gerçekten uçtuysa        */
         if (event.isFlying()) {
-            // Oyuncu uçmaya başlıyor, ve yerden kalktıysa uçuş başlat
 
+            /*      oyuncuyu uçan oyuncular listesine ekler     */
             plugin.getFlightTimeTask().startFlight(player);
             player.sendMessage("Your flight has started!");
 
         }
     }
 
+    /**************************************************************************************************************/
+    //  çeşitli kontroller
     private boolean shouldIgnore(Player player) {
+        /*      oyuncunun bypassconduit permi var mı kontrol et     */
         if (player.hasPermission("conduitfly.bypassconduit")) {
             plugin.getLogger().info(player.getName() + " bypassconduit yetkisine sahip!");
             return true;
         }
+        /*      oyuncunun oyun modu kontrol edilir      */
         if (player.getGameMode() != GameMode.SURVIVAL && player.getGameMode() != GameMode.ADVENTURE) {
             plugin.getLogger().info(player.getName() + " uygun gamemode değil! Gamemode: " + player.getGameMode());
             return true;
         }
+        /*      oyuncunun bulunduğu dünya kontrol edilir        */
         if (!IslandUtils.isInBSkyBlockWorld(player)) {
             plugin.getLogger().info(player.getName() + " bskyblock dünyasında değil!");
             return true;
@@ -131,25 +143,40 @@ public class FlightCheckTask implements Listener {
         return false;
     }
 
+    /**************************************************************************************************************/
+    //  oyuncular fall damage aldığında çalışır
     @EventHandler
     public void onFallDamage(EntityDamageEvent event) {
-        // Sadece oyuncular
+        /*      hasarı alan oyuncu mu       */
         if (!(event.getEntity() instanceof Player player)) {
             return;
         }
 
-        // Eğer hasar tipi fall damage değilse geç
+        /*      hasarın tipi fall damage mi     */
         if (event.getCause() != EntityDamageEvent.DamageCause.FALL) {
             return;
         }
 
+        /*      çeşitli kontroller      */
         if (shouldIgnore(player)) {
             return;
         }
 
-        // Eğer oyuncu conduit alanındaysa fall damage iptal
-        if (plugin.getConduitCache().isPlayerNearAnyConduit(player, 10.5)) {
-            event.setCancelled(true);
+        /*      oyuncunun yetkisini getirir     */
+        String playerRankPermission = rankSettingsManager.getPermission(player);
+        RankSettings rankSettings = plugin.getRankSettingsManager().getRankSettingsByPermission(playerRankPermission);
+
+        /*      oyuncunun yetkisi yoksa işlem yaptırmaz     */
+        if (rankSettings == null) {
+            return;
+        }
+
+        /*      oyuncu conduite yeteri kadar yakın mı       */
+        double radius = rankSettings.getRadius();
+        if (plugin.getConduitCache().isPlayerNearAnyConduit(player, radius)) {
+            if (rankSettings.shouldPreventFallDamage()) {
+                event.setCancelled(true);
+            }
         }
     }
 }
