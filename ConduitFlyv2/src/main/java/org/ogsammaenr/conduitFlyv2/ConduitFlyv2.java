@@ -100,20 +100,25 @@ public final class ConduitFlyv2 extends JavaPlugin {
     /**************************************************************************************************************/
     //  plugini reloadlar
     public void reloadPlugin() {
-        reloadConfig(); // config.yml yeniden yükleniyor
+        /*      config.yml yeniden yüklenir     */
+        reloadConfig();
 
+        /*      permler yeniden oluşturulur     */
         this.permissionManager = new PermissionManager(this);
         permissionManager.loadPermissions();
 
-        rankSettingsManager = new RankSettingsManager(getConfig(), this); // Rank ayarlarını yeniden kuruyoruz
+        /*      rütbe ayarları yeniden oluşturulur      */
+        rankSettingsManager.loadRankSettings(getConfig());
 
+        /*      conduit materyali configden alınır      */
         Material material = Material.matchMaterial(getConfig().getString("conduit.material"));
 
+        /*      hata var mı yok mu kontrol edilir       */
         if (material == null) {
             getLogger().warning("Geçersiz conduit materyali bulundu! Default olarak CONDUIT kullanılacak.");
             material = Material.CONDUIT;
         }
-
+        /*      conduit materyali güncellenir       */
         conduitListener.updateConduitMaterial(material);
 
         getLogger().info("ConduitFly ayarları başarıyla yeniden yüklendi!");

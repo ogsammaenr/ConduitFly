@@ -32,7 +32,9 @@ public class RankSettingsManager {
 
     /**************************************************************************************************************/
     // Config'den RankSettings verilerini yükler
-    private void loadRankSettings(FileConfiguration config) {
+    public void loadRankSettings(FileConfiguration config) {
+        rankSettingsMap.clear();
+
         if (!config.contains("ranks")) return;
 
         Material conduitMaterial = Material.matchMaterial(config.getString("conduit.material"));

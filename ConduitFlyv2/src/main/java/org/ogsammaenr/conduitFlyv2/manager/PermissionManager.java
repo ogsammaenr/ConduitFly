@@ -19,6 +19,7 @@ public class PermissionManager {
     /**************************************************************************************************************/
     //  Configdeki permler oluşturulur
     public void loadPermissions() {
+        /*      eski permleri kaldır        */
         for (Permission permission : pm.getPermissions()) {
             if (permission.getName().startsWith("conduitfly.")) {
                 pm.removePermission(permission);
@@ -26,7 +27,7 @@ public class PermissionManager {
             }
         }
 
-        /* Eğer config'te ranks kısmı yoksa işlem yapma */
+        /*      Eğer config'te ranks kısmı yoksa işlem yapma        */
         if (!plugin.getConfig().isConfigurationSection("ranks")) {
             return;
         }
@@ -43,6 +44,7 @@ public class PermissionManager {
             String defStr = plugin.getConfig().getString(base + "permissionDefault", "false");
             PermissionDefault defVal = PermissionDefault.getByName(defStr.toUpperCase());
 
+            /*      girilen permde hata var mı kontrol edilir       */
             if (permission == null || permission.isEmpty()) {
                 plugin.getLogger().warning("Permission is missing for rank: " + rankKey);
                 continue;
