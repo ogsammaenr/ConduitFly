@@ -1,7 +1,10 @@
 org\ogsammaenr\conduitFlyv2\listeners\ConduitListener$1.class
 org\ogsammaenr\conduitFlyv2\commands\MainCommand.class
 org\ogsammaenr\conduitFlyv2\manager\ConduitCache.class
+org\ogsammaenr\conduitFlyv2\gui\PaginatedRankUpgradeMenu.class
+org\ogsammaenr\conduitFlyv2\gui\RankUpgradeMenu.class
 org\ogsammaenr\conduitFlyv2\settings\RankSettingsManager.class
+org\ogsammaenr\conduitFlyv2\gui\RankUpgradeMenuListener.class
 org\ogsammaenr\conduitFlyv2\tasks\FlightCheckTask.class
 org\ogsammaenr\conduitFlyv2\listeners\ConduitListener.class
 org\ogsammaenr\conduitFlyv2\listeners\IslandEventListener.class

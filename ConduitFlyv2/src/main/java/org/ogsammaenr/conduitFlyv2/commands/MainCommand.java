@@ -4,7 +4,9 @@ import net.md_5.bungee.api.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.ogsammaenr.conduitFlyv2.ConduitFlyv2;
+import org.ogsammaenr.conduitFlyv2.gui.PaginatedRankUpgradeMenu;
 
 public class MainCommand implements CommandExecutor {
 
@@ -37,6 +39,9 @@ public class MainCommand implements CommandExecutor {
             case "help":
                 sendHelp(sender);
                 break;
+            case "rankup":
+                handleRankup(sender);
+                break;
             default:
                 sender.sendMessage("§cBilinmeyen komut. §7'/conduitfly help' yazarak komutları görebilirsin.");
                 break;
@@ -64,7 +69,18 @@ public class MainCommand implements CommandExecutor {
         sender.sendMessage("§8§m----------------------------------------");
         sender.sendMessage("§b§lConduitFly v2 §7- Yardım Menüsü");
         sender.sendMessage("§e/conduitfly reload §7- Plugin ayarlarını yeniden yükler.");
+        sender.sendMessage("§e/conduitfly rankup §7- Rütbe yükseltme menüsünü açar.");
         sender.sendMessage("§e/conduitfly help §7- Bu yardım menüsünü gösterir.");
         sender.sendMessage("§8§m----------------------------------------");
+    }
+
+    private void handleRankup(CommandSender sender) {
+        if (!(sender instanceof Player)) {
+            sender.sendMessage("§cBu komutu sadece oyuncular kullanabilir.");
+            return;
+        }
+
+        Player player = (Player) sender;
+        new PaginatedRankUpgradeMenu(plugin.getRankSettingsManager()).open((org.bukkit.entity.Player) sender, 1);
     }
 }

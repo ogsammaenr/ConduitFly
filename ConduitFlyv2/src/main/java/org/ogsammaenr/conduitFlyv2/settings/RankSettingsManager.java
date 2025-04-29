@@ -6,6 +6,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachmentInfo;
 import org.ogsammaenr.conduitFlyv2.ConduitFlyv2;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -28,6 +29,10 @@ public class RankSettingsManager {
     // Belirli bir rankın özelliklerini döndürür
     public RankSettings getRankSettingsByPermission(String permission) {
         return rankSettingsMap.get(permission);
+    }
+
+    public Map<String, RankSettings> getRankSettingsMap() {
+        return Collections.unmodifiableMap(rankSettingsMap);
     }
 
     /**************************************************************************************************************/

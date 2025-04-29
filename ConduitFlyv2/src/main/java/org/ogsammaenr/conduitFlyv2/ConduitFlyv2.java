@@ -5,6 +5,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.ogsammaenr.conduitFlyv2.commands.MainCommand;
+import org.ogsammaenr.conduitFlyv2.gui.RankUpgradeMenuListener;
 import org.ogsammaenr.conduitFlyv2.listeners.ConduitListener;
 import org.ogsammaenr.conduitFlyv2.listeners.IslandEventListener;
 import org.ogsammaenr.conduitFlyv2.manager.ConduitCache;
@@ -56,6 +57,7 @@ public final class ConduitFlyv2 extends JavaPlugin {
         pm.registerEvents(conduitListener, this);
         pm.registerEvents(new IslandEventListener(conduitCache, conduitStorage), this);
         pm.registerEvents(new FlightCheckTask(this), this);
+        pm.registerEvents(new RankUpgradeMenuListener(this), this);
         flightTimeTask.runTaskTimer(this, 20L, 20L);
 
         getCommand("conduitfly").setExecutor(new MainCommand(this));
