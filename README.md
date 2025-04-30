@@ -1,11 +1,22 @@
-# ConduitFly
+# 🚀 ConduitFly 
 
-###
+**ConduitFly** is a rank-based flight system for BSkyblock servers using conduits as activation zones.
 
-This is my first Minecraft plugin project!
-It adds a simple system where players can fly near conduit blocks on Skyblock islands.
-Flight distance and duration can be customized based on player permissions.
+---
 
+## 🔧 What It Does
+- Enables flight near conduits based on rank
+- Custom radius and flight time per rank
+- Custom radius & flight time per rank (configurable in `config.yml`)
+- Clean, paginated GUI for rank upgrades
+- LuckPerms support & YML-based config
 
-The project is still in early development, and I'm learning and improving as I go.
-Any feedback or suggestions are very welcome!
+---
+
+## 🗺️ Roadmap
+- ✅ Rank-based flight zones
+- ✅ Configurable ranks
+- ✅ Multi-page rank GUI
+- ⏳ Permission granting
+- ⏳ Flight time countdown
+- ⏳ Rank-up confirmation
