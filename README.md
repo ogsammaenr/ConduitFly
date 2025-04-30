@@ -6,8 +6,8 @@
 
 ## 🔧 What It Does
 - Enables flight near conduits based on rank
-- Custom radius and flight time per rank
 - Custom radius & flight time per rank (configurable in `config.yml`)
+- Dynamic rank system from config
 - Clean, paginated GUI for rank upgrades
 - LuckPerms support & YML-based config
 
