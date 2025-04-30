@@ -55,9 +55,10 @@ public class RankSettingsManager {
             double radius = config.getDouble(base + "radius");
             long duration = config.getLong(base + "duration");
             boolean preventFall = config.getBoolean(base + "prevent-fall-damage");
+            double price = config.getDouble(base + "price");
 
             plugin.getLogger().info(permission + " radius : " + radius + " duration : " + duration + " preventfall : " + preventFall + " priority : " + priorityCounter);
-            RankSettings rs = new RankSettings(permission, radius, duration, preventFall, priorityCounter++);
+            RankSettings rs = new RankSettings(permission, radius, duration, preventFall, price, priorityCounter++);
             rankSettingsMap.put(permission, rs);
 
 

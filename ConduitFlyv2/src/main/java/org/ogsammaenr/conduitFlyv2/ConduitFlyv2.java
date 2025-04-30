@@ -1,8 +1,10 @@
 package org.ogsammaenr.conduitFlyv2;
 
+import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.PluginManager;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.ogsammaenr.conduitFlyv2.commands.MainCommand;
 import org.ogsammaenr.conduitFlyv2.gui.RankUpgradeMenuListener;
@@ -25,6 +27,8 @@ public final class ConduitFlyv2 extends JavaPlugin {
     private PermissionManager permissionManager;
     private ConduitListener conduitListener;
 
+    private static Economy economy;
+
 
     /**************************************************************************************************************/
     //  sdece sunucu başlarken çalışır diğer sınıflar bu metod sayesinde bir işe yarar
@@ -35,6 +39,12 @@ public final class ConduitFlyv2 extends JavaPlugin {
         this.config = getConfig();
 
         new PermissionManager(this).loadPermissions();
+
+        if (!setupEconomy()) {
+            getLogger().severe("Vault veya bir ekonomi plugin'i (EssentialsX gibi) yüklü değil!");
+            getServer().getPluginManager().disablePlugin(this);
+            return;
+        }
 
         // RankSettingsManager'ı başlat
         this.rankSettingsManager = new RankSettingsManager(config, this);
@@ -99,6 +109,10 @@ public final class ConduitFlyv2 extends JavaPlugin {
         return rankSettingsManager;
     }
 
+    public Economy getEconomy() {
+        return economy;
+    }
+
     /**************************************************************************************************************/
     //  plugini reloadlar
     public void reloadPlugin() {
@@ -124,5 +138,13 @@ public final class ConduitFlyv2 extends JavaPlugin {
         conduitListener.updateConduitMaterial(material);
 
         getLogger().info("ConduitFly ayarları başarıyla yeniden yüklendi!");
+    }
+
+    private boolean setupEconomy() {
+        if (getServer().getPluginManager().getPlugin("Vault") == null) return false;
+        RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
+        if (rsp == null) return false;
+        economy = rsp.getProvider();
+        return economy != null;
     }
 }

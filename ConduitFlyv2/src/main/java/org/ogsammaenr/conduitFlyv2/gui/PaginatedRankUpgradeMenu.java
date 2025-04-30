@@ -30,30 +30,34 @@ public class PaginatedRankUpgradeMenu {
         if (page < 1) page = 1;
         if (page > totalPages) page = totalPages;
 
-        Inventory gui = Bukkit.createInventory(null, 27, "§bRütbe Yükseltme §7- Sayfa " + page);
+        Inventory gui = Bukkit.createInventory(null, 36, "§bRütbe Yükseltme §7- Sayfa " + page);
 
         int startIndex = (page - 1) * itemSlots.length;
         int endIndex = Math.min(startIndex + itemSlots.length, sortedRanks.size());
 
         for (int i = startIndex, slotIndex = 0; i < endIndex; i++, slotIndex++) {
-            gui.setItem(itemSlots[slotIndex], createRankItem(sortedRanks.get(i)));
+            if (player.hasPermission(sortedRanks.get(i).getPermission()))
+                gui.setItem(itemSlots[slotIndex], createRankItem(sortedRanks.get(i), Material.LIME_DYE));
+
+            else
+                gui.setItem(itemSlots[slotIndex], createRankItem(sortedRanks.get(i), Material.LIGHT_GRAY_DYE));
         }
 
         // Geri butonu
         if (page > 1) {
-            gui.setItem(18, createControlItem("§c← Önceki Sayfa", Material.ARROW));
+            gui.setItem(27, createControlItem("§c← Önceki Sayfa", Material.ARROW));
         }
 
         // İleri butonu
         if (page < totalPages) {
-            gui.setItem(26, createControlItem("§aSonraki Sayfa →", Material.ARROW));
+            gui.setItem(35, createControlItem("§aSonraki Sayfa →", Material.ARROW));
         }
 
         player.openInventory(gui);
     }
 
-    private ItemStack createRankItem(RankSettings rank) {
-        ItemStack item = new ItemStack(Material.BOOK);
+    private ItemStack createRankItem(RankSettings rank, Material material) {
+        ItemStack item = new ItemStack(material);
         ItemMeta meta = item.getItemMeta();
         if (meta == null) return item;
 
@@ -63,6 +67,7 @@ public class PaginatedRankUpgradeMenu {
         lore.add("§7Alan çapı: §f" + rank.getRadius());
         lore.add("§7Uçuş süresi: §f" + rank.getDuration() + " saniye");
         lore.add("§7Düşme hasarı engeli: §f" + (rank.shouldPreventFallDamage() ? "§aAçık" : "§cKapalı"));
+        lore.add("§7Fiyatı: §f" + rank.getPrice());
 
         meta.setLore(lore);
         item.setItemMeta(meta);
