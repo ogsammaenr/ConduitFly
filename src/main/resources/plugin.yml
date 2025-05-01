@@ -1,0 +1,13 @@
+name: ConduitFly
+version: '1.0.0'
+main: org.ogsammaenr.conduitFly.ConduitFly
+api-version: '1.21'
+depend:
+  - Vault
+  - BentoBox
+commands:
+  conduitfly:
+    description: ConduitFly ana komutu
+    usage: /<command> [reload|help|rankup]
+    permission: conduitfly.use
+    permission-message: §cBu komutu kullanmak için yetkin yok.

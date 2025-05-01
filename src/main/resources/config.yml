@@ -1,0 +1,56 @@
+#   permlerin isimleri ve adedi değiştirilebilir
+#
+#     **example perm**
+#  yourPermission:
+#    permission: "conduitfly.yourPermission"
+#    radius: 20.0
+#    duration: 15
+#    price: 500
+#    display-name: "your permission name"
+
+ranks:
+  default: #                                Oyuncunun hiçbir yetkisi yoksa çalışır
+    permission: "conduitfly.default"  #     zorunlu
+    radius: 10.0
+    duration: 3
+    prevent-fall-damage: false
+    price: 60
+    display-name: "varsayılan"
+  level1:
+    permission: "conduitfly.level1"
+    radius: 15.0
+    duration: 5
+    prevent-fall-damage: false
+    price: 100
+    display-name: "level 1"
+  level2:
+    permission: "conduitfly.level2"
+    radius: 20.0
+    duration: 10
+    prevent-fall-damage: false
+    price: 1000
+    display-name: "vip"
+  level3:
+    permission: "conduitfly.level3"
+    radius: 25.0
+    duration: 15
+    prevent-fall-damage: true
+    price: 1500
+    display-name: "admin"
+  level4:
+    permission: "conduitfly.level4"
+    radius: 25.0
+    duration: 20
+    prevent-fall-damage: true
+    price: 2000
+    display-name: "op"
+  level5:
+    permission: "conduitfly.level5"
+    radius: 30.0
+    duration: 30
+    prevent-fall-damage: true
+    price: 5000
+    display-name: "op"
+
+conduit:
+  material: "CONDUIT"
