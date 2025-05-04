@@ -79,7 +79,9 @@ public class FlightCheckTask implements Listener {
                     }, 1L);
                 } else if (plugin.getFlightTimeTask().getFlyingPlayers().containsKey(player.getUniqueId()) && player.isOnGround()) {
                     plugin.getFlightTimeTask().getFlyingPlayers().remove(player.getUniqueId());
-                    player.sendActionBar("yere indin süre sıfırlandı");
+
+                    String message = plugin.getMessageManager().getMessage("player-landed");
+                    player.sendActionBar(message);
                 }
             } else {
                 player.setAllowFlight(false);
@@ -108,7 +110,10 @@ public class FlightCheckTask implements Listener {
 
         /*      oyuncu gerçekten uçtuysa        */
         if (event.isFlying()) {
-            player.sendActionBar("§bUçuş süresi: §f" + rankSettingsManager.getRankSettingsByPermission(rankSettingsManager.getPermission(player)).getDuration() + "s");
+            long duration = rankSettingsManager.getRankSettingsByPermission(rankSettingsManager.getPermission(player)).getDuration();
+            String message = plugin.getMessageManager().getMessage("flight-time").replace("{time}", Long.toString(duration));
+
+            player.sendActionBar(message);
             /*      oyuncuyu uçan oyuncular listesine ekler     */
             plugin.getFlightTimeTask().startFlight(player);
 

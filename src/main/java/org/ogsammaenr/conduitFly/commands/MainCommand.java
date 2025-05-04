@@ -81,6 +81,6 @@ public class MainCommand implements CommandExecutor {
         }
 
         Player player = (Player) sender;
-        new PaginatedRankUpgradeMenu(plugin.getRankSettingsManager()).open((org.bukkit.entity.Player) sender, 1);
+        new PaginatedRankUpgradeMenu(plugin.getRankSettingsManager(), plugin).open((org.bukkit.entity.Player) sender, 1);
     }
 }

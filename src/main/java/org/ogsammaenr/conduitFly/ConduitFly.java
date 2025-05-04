@@ -13,6 +13,7 @@ import org.ogsammaenr.conduitFly.listeners.ConduitListener;
 import org.ogsammaenr.conduitFly.listeners.IslandEventListener;
 import org.ogsammaenr.conduitFly.manager.ConduitCache;
 import org.ogsammaenr.conduitFly.manager.ConduitStorage;
+import org.ogsammaenr.conduitFly.manager.MessageManager;
 import org.ogsammaenr.conduitFly.manager.PermissionManager;
 import org.ogsammaenr.conduitFly.settings.RankSettingsManager;
 import org.ogsammaenr.conduitFly.tasks.FlightCheckTask;
@@ -27,6 +28,7 @@ public final class ConduitFly extends JavaPlugin {
     private FileConfiguration config;
     private PermissionManager permissionManager;
     private ConduitListener conduitListener;
+    private MessageManager messageManager;
 
     private static Economy economy;
 
@@ -42,7 +44,7 @@ public final class ConduitFly extends JavaPlugin {
         new PermissionManager(this).loadPermissions();
 
         if (!setupEconomy()) {
-            getLogger().severe("Vault veya bir ekonomi plugin'i (EssentialsX gibi) yüklü değil!");
+            getLogger().severe("Vault or a compatible economy plugin is missing!");
             getServer().getPluginManager().disablePlugin(this);
             return;
         }
@@ -55,6 +57,7 @@ public final class ConduitFly extends JavaPlugin {
         this.flightTimeTask = new FlightTimeTask(this);
         this.permissionManager = new PermissionManager(this);
         this.conduitListener = new ConduitListener(this);
+        this.messageManager = new MessageManager(this);
 
 
         /*  dünyalar yüklendikten sonra dosyadaki veriler belleğe yüklenir*/
@@ -115,6 +118,10 @@ public final class ConduitFly extends JavaPlugin {
         return economy;
     }
 
+    public MessageManager getMessageManager() {
+        return messageManager;
+    }
+
     /**************************************************************************************************************/
     //  plugini reloadlar
     public void reloadPlugin() {
@@ -133,13 +140,13 @@ public final class ConduitFly extends JavaPlugin {
 
         /*      hata var mı yok mu kontrol edilir       */
         if (material == null) {
-            getLogger().warning("Geçersiz conduit materyali bulundu! Default olarak CONDUIT kullanılacak.");
+            getLogger().warning("Invalid Conduit Material Provided. Using default : CONDUIT");
             material = Material.CONDUIT;
         }
         /*      conduit materyali güncellenir       */
         conduitListener.updateConduitMaterial(material);
 
-        getLogger().info("ConduitFly ayarları başarıyla yeniden yüklendi!");
+        getLogger().info("ConduitFly settings reloaded successfully!");
     }
 
     private boolean setupEconomy() {

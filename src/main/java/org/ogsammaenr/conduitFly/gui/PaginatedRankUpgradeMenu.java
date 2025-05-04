@@ -6,6 +6,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.ogsammaenr.conduitFly.ConduitFly;
 import org.ogsammaenr.conduitFly.settings.RankSettings;
 import org.ogsammaenr.conduitFly.settings.RankSettingsManager;
 
@@ -16,10 +17,12 @@ import java.util.List;
 public class PaginatedRankUpgradeMenu {
 
     private final RankSettingsManager rankSettingsManager;
+    private final ConduitFly plugin;
     private final int[] itemSlots = {10, 12, 14, 16};
 
-    public PaginatedRankUpgradeMenu(RankSettingsManager rankSettingsManager) {
+    public PaginatedRankUpgradeMenu(RankSettingsManager rankSettingsManager, ConduitFly plugin) {
         this.rankSettingsManager = rankSettingsManager;
+        this.plugin = plugin;
     }
 
     public void open(Player player, int page) {
@@ -30,7 +33,8 @@ public class PaginatedRankUpgradeMenu {
         if (page < 1) page = 1;
         if (page > totalPages) page = totalPages;
 
-        Inventory gui = Bukkit.createInventory(null, 36, "§bRütbe Yükseltme §7- Sayfa " + page);
+        String message = plugin.getMessageManager().getRaw("gui-rankup-title").replace("{page}", String.valueOf(page));
+        Inventory gui = Bukkit.createInventory(null, 36, message);
 
         int startIndex = (page - 1) * itemSlots.length;
         int endIndex = Math.min(startIndex + itemSlots.length, sortedRanks.size());
@@ -45,12 +49,14 @@ public class PaginatedRankUpgradeMenu {
 
         // Geri butonu
         if (page > 1) {
-            gui.setItem(27, createControlItem("§c← Önceki Sayfa", Material.ARROW));
+            String previousPage = plugin.getMessageManager().getRaw("gui-previous-page");
+            gui.setItem(27, createControlItem(previousPage, Material.ARROW));
         }
 
         // İleri butonu
         if (page < totalPages) {
-            gui.setItem(35, createControlItem("§aSonraki Sayfa →", Material.ARROW));
+            String nextPage = plugin.getMessageManager().getRaw("gui-next-page");
+            gui.setItem(35, createControlItem(nextPage, Material.ARROW));
         }
 
         player.openInventory(gui);
@@ -63,11 +69,17 @@ public class PaginatedRankUpgradeMenu {
 
         meta.setDisplayName("§a" + rank.getDisplayName());
 
+        List<String> loreTemplate = plugin.getMessageManager().getList("rank-lore"); // messages.yml'den çekiliyor
         List<String> lore = new ArrayList<>();
-        lore.add("§7Alan çapı: §f" + rank.getRadius());
-        lore.add("§7Uçuş süresi: §f" + rank.getDuration() + " saniye");
-        lore.add("§7Düşme hasarı engeli: §f" + (rank.shouldPreventFallDamage() ? "§aAçık" : "§cKapalı"));
-        lore.add("§7Fiyatı: §f" + rank.getPrice());
+
+        for (String line : loreTemplate) {
+            line = line
+                    .replace("{radius}", String.valueOf(rank.getRadius()))
+                    .replace("{duration}", String.valueOf(rank.getDuration()))
+                    .replace("{price}", String.valueOf(rank.getPrice()))
+                    .replace("{fall-damage}", rank.shouldPreventFallDamage() ? "§aAçık" : "§cKapalı");
+            lore.add(line);
+        }
 
         meta.setLore(lore);
         item.setItemMeta(meta);

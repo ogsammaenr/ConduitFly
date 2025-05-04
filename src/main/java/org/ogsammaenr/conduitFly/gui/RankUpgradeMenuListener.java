@@ -31,7 +31,23 @@ public class RankUpgradeMenuListener implements Listener {
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
         String title = event.getView().getTitle();
-        if (!title.startsWith("§bRütbe Yükseltme")) return;
+
+        // Başlıkta son kısmı almak için boşlukla ayıralım
+        String[] titleParts = title.split(" "); // Başlığı boşluklardan ayırıyoruz
+        int page;
+        // Son parçayı sayfa numarası olarak alıyoruz
+        try {
+            page = Integer.parseInt(titleParts[titleParts.length - 1]); // Son parçayı sayfa numarası olarak alıyoruz
+            // Artık sayfa numarasını 'page' değişkeninde tutuyoruz
+        } catch (NumberFormatException e) {
+            // Sayfa numarasını alırken hata oluşursa, işlem yapılmaz
+            plugin.getLogger().warning(e.getMessage());
+            return;
+        }
+
+        String menutitle = plugin.getMessageManager().getRaw("gui-rankup-title").replace("{page}", Integer.toString(page));
+
+        if (!title.equals(menutitle)) return;
 
         Inventory clickedInventory = event.getClickedInventory();
         Inventory topInventory = event.getView().getTopInventory();
@@ -71,21 +87,18 @@ public class RankUpgradeMenuListener implements Listener {
         int currentPage = getCurrentPage(title);
         int totalPages = (int) Math.ceil((double) rankSettingsManager.getRankSettingsMap().size() / 4);
 
-        plugin.getLogger().info("Clicked type: " + clicked.getType());
-        plugin.getLogger().info("DisplayName: " + meta.getDisplayName());
-        plugin.getLogger().info("Raw title: " + title);
+        String previousPage = ChatColor.stripColor(plugin.getMessageManager().getRaw("gui-previous-page"));
+        String nextPage = ChatColor.stripColor(plugin.getMessageManager().getRaw("gui-next-page"));
 
         // Sayfa kontrolü
-        if (itemName.equalsIgnoreCase("← Önceki Sayfa")) {
-            plugin.getLogger().info("önceki sayfa tıklandı : " + currentPage + "/" + totalPages);
+        if (itemName.equals(previousPage)) {
             if (currentPage > 1) {
-                new PaginatedRankUpgradeMenu(rankSettingsManager).open(player, currentPage - 1);
+                new PaginatedRankUpgradeMenu(rankSettingsManager, plugin).open(player, currentPage - 1);
             }
             return;
-        } else if (itemName.equalsIgnoreCase("Sonraki Sayfa →")) {
-            plugin.getLogger().info("sonraki sayfa tıklandı : " + currentPage + "/" + totalPages);
+        } else if (itemName.equals(nextPage)) {
             if (currentPage < totalPages) {
-                new PaginatedRankUpgradeMenu(rankSettingsManager).open(player, currentPage + 1);
+                new PaginatedRankUpgradeMenu(rankSettingsManager, plugin).open(player, currentPage + 1);
             }
             return;
         }
@@ -114,7 +127,8 @@ public class RankUpgradeMenuListener implements Listener {
 
 
             if (player.hasPermission(perm)) {
-                player.sendMessage("§eZaten bu rütbeye sahipsin.");
+                String message = plugin.getMessageManager().getMessage("rank-already-owned");
+                player.sendMessage(message);
                 return;
             }
 
@@ -125,7 +139,8 @@ public class RankUpgradeMenuListener implements Listener {
                 String previousPerm = previousRank.getPermission();
 
                 if (!player.hasPermission(previousPerm)) {
-                    player.sendMessage("§cBu rütbeyi almak için önce §f" + previousRank.getDisplayName() + " §crütbesine sahip olmalısın.");
+                    String message = plugin.getMessageManager().getMessage("rank-requirement").replace("{previous}", previousRank.getDisplayName());
+                    player.sendMessage(message);
                     return;
                 }
             }
@@ -136,13 +151,17 @@ public class RankUpgradeMenuListener implements Listener {
             if (balance > price) {
                 plugin.getEconomy().withdrawPlayer(player, price);
                 Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "lp user " + player.getName() + " permission set " + perm);
-                player.sendMessage("§aYeni rütbe kazandın: §f" + perm + "§7(-$" + price + ")");
+
+                String message = plugin.getMessageManager().getMessage("rank-earned").replace("{price}", String.valueOf(price)).replace("{rank}",
+                        String.valueOf(rankSettingsManager.getRankSettingsByPermission(perm).getDisplayName()));
+                player.sendMessage(message);
 
                 Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                    new PaginatedRankUpgradeMenu(rankSettingsManager).open(player, currentPage);
+                    new PaginatedRankUpgradeMenu(rankSettingsManager, plugin).open(player, currentPage);
                 }, 5L);
             } else {
-                player.sendMessage("§cYetersiz bakiye. Gerekli: §f$" + price);
+                String message = plugin.getMessageManager().getMessage("insufficient-balance").replace("{price}", String.valueOf(price));
+                player.sendMessage(message);
             }
             return;
 
@@ -155,7 +174,23 @@ public class RankUpgradeMenuListener implements Listener {
     @EventHandler
     public void onInventoryDrag(InventoryDragEvent event) {
         String title = event.getView().getTitle();
-        if (!title.startsWith("§bRütbe Yükseltme")) return;
+
+        // Başlıkta son kısmı almak için boşlukla ayıralım
+        String[] titleParts = title.split(" "); // Başlığı boşluklardan ayırıyoruz
+        int page;
+        // Son parçayı sayfa numarası olarak alıyoruz
+        try {
+            page = Integer.parseInt(titleParts[titleParts.length - 1]); // Son parçayı sayfa numarası olarak alıyoruz
+            // Artık sayfa numarasını 'page' değişkeninde tutuyoruz
+        } catch (NumberFormatException e) {
+            // Sayfa numarasını alırken hata oluşursa, işlem yapılmaz
+            plugin.getLogger().warning(e.getMessage());
+            return;
+        }
+
+        String menutitle = plugin.getMessageManager().getRaw("gui-rankup-title").replace("{page}", Integer.toString(page));
+
+        if (!title.equals(menutitle)) return;
 
         Inventory topInventory = event.getView().getTopInventory();
         for (int slot : event.getRawSlots()) {

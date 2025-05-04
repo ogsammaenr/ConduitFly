@@ -82,15 +82,17 @@ public class FlightTimeTask extends BukkitRunnable {
 
                 /*      oyuncunun süresi dolmuşsa uçuşu kapatılır verisi kaldırılır     */
                 if (now - startTime >= maxDuration * 1000) {
-                    if (player.isFlying()) {
-                        player.sendActionBar("§cUçuş süreniz doldu, uçuş kapatıldı.");
-                        player.setAllowFlight(false);
-                        player.setFlying(false);
-                        iterator.remove();
+                    String message = plugin.getMessageManager().getMessage("flight-time-expired");
+                    player.sendActionBar(message);
+                    player.setAllowFlight(false);
+                    player.setFlying(false);
+                    iterator.remove();
 
-                    }
+
                 } else {
-                    player.sendActionBar("§bUçuş süresi: §f" + ((maxDuration * 1000 - (now - startTime)) / 1000) + "s");
+                    long duration = ((maxDuration * 1000 - (now - startTime)) / 1000);
+                    String message = plugin.getMessageManager().getMessage("flight-time").replace("{time}", Long.toString(duration));
+                    player.sendActionBar(message);
                 }
             }
         }

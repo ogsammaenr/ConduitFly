@@ -1,0 +1,25 @@
+prefix: "&6[Sunucu] "
+no-permission: "&cBu işlemi yapmak için yetkin yok!"
+fly-enabled: "&aUçma modu etkinleştirildi."
+fly-disabled: "&cUçma modu devre dışı bırakıldı."
+flight-time: "&bUçuş süresi: &f{time}s"
+flight-time-expired: "&buçuş süresi doldu"
+player-landed: "&7yere indin süre sıfırlandı"
+conduit-place: "&aconduit yerleştirildi"
+conduit-break: "&cconduit kırıldı"
+
+gui-rankup-title: "&bRütbe Yükseltme &7- Sayfa {page}"
+gui-previous-page: "&c← Önceki Sayfa"
+gui-next-page: "§aSonraki Sayfa →"
+
+rank-lore:
+  - "§7Alan çapı: §f{radius}"
+  - "§7Uçuş süresi: §f{duration} saniye"
+  - "§7Düşme hasarı engeli: §f{fall-damage}"
+  - "§7Fiyatı: §f{price}"
+
+rank-already-owned: "&eZaten bu rütbeye sahipsin."
+rank-requirement: "&cBu rütbeyi almak için önce &f{previous} &crütbesine sahip olmalısın."
+rank-earned: "&aYeni rütbe kazandın: &f{rank} &7(-${price})"
+
+insufficient-balance: "&cYetersiz bakiye. Gerekli: &f${price}"

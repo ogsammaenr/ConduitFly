@@ -8,8 +8,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.ogsammaenr.conduitFly.ConduitFly;
 import org.ogsammaenr.conduitFly.manager.ConduitCache;
 import org.ogsammaenr.conduitFly.manager.ConduitStorage;
 import org.ogsammaenr.conduitFly.util.IslandUtils;
@@ -20,13 +20,13 @@ import java.util.Optional;
 public class ConduitListener implements Listener {
     private final ConduitStorage conduitStorage;
     private final ConduitCache conduitCache;
-    private final JavaPlugin plugin;
+    private final ConduitFly plugin;
 
     private Material conduitMaterial;
 
     /**************************************************************************************************************/
     //  Constructor metodu
-    public ConduitListener(org.ogsammaenr.conduitFly.ConduitFly plugin) {
+    public ConduitListener(ConduitFly plugin) {
         this.conduitStorage = plugin.getConduitStorage();
         this.conduitCache = plugin.getConduitCache();
         this.plugin = plugin;
@@ -51,7 +51,6 @@ public class ConduitListener implements Listener {
             /*  oyuncu bir ada üzerinde mi?  */
             Optional<Island> optionalIsland = IslandUtils.getIsland(player);
             if (optionalIsland.isEmpty()) {
-                player.sendMessage("§cBir ada üzerinde değilsin!");
                 return;
             }
             Island island = optionalIsland.get();
@@ -62,7 +61,9 @@ public class ConduitListener implements Listener {
             Bukkit.getScheduler().runTask(plugin, () -> {
                 if (event.getBlock().getType() == conduitMaterial) {
                     conduitCache.addConduit(uuid, location);
-                    player.sendMessage("§aConduit yerleştirildi.");
+
+                    String message = plugin.getMessageManager().getMessage("conduit-place");
+                    player.sendMessage(message);
                 }
             });
         }
@@ -78,7 +79,6 @@ public class ConduitListener implements Listener {
             /*  oyuncu bir ada üzerinde mi?  */
             Optional<Island> optionalIsland = IslandUtils.getIsland(player);
             if (optionalIsland.isEmpty()) {
-                player.sendMessage("§cAda bulunamadı!");
                 return;
             }
             Island island = optionalIsland.get();
@@ -89,7 +89,8 @@ public class ConduitListener implements Listener {
             Bukkit.getScheduler().runTask(plugin, () -> {
                 if (event.getBlock().getType() != Material.CONDUIT) {
                     conduitCache.removeConduit(uuid, location);
-                    player.sendMessage("§cConduit kırıldı.");
+                    String message = plugin.getMessageManager().getMessage("conduit-break");
+                    player.sendMessage(message);
                 }
             });
         }
