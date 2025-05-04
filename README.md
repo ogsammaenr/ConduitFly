@@ -17,6 +17,6 @@
 - ✅ Rank-based flight zones
 - ✅ Configurable ranks
 - ✅ Multi-page rank GUI
-- ⏳ Permission granting
-- ⏳ Flight time countdown
+- ✅ Permission granting
+- ✅ Flight time countdown
 - ⏳ Rank-up confirmation
