@@ -1,5 +1,5 @@
 name: ConduitFly
-version: '1.0.0'
+version: '1.0.2'
 main: org.ogsammaenr.conduitFly.ConduitFly
 api-version: '1.21'
 depend:

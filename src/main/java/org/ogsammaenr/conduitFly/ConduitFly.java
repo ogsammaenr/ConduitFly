@@ -146,6 +146,8 @@ public final class ConduitFly extends JavaPlugin {
         /*      conduit materyali güncellenir       */
         conduitListener.updateConduitMaterial(material);
 
+        this.messageManager = new MessageManager(this);
+
         getLogger().info("ConduitFly settings reloaded successfully!");
     }
 

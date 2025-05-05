@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class MessageManager {
-    private final FileConfiguration messages;
+    private FileConfiguration messages;
     private final ConduitFly plugin;
 
     public MessageManager(ConduitFly plugin) {
@@ -41,5 +41,13 @@ public class MessageManager {
 
     public String color(String message) {
         return ChatColor.translateAlternateColorCodes('&', message);
+    }
+
+    public void reloadMessages() {
+        File messagesFile = new File(plugin.getDataFolder(), "messages.yml");
+        if (!messagesFile.exists()) {
+            plugin.saveResource("messages.yml", false); // dosya hiç yoksa oluşturur
+        }
+        this.messages = YamlConfiguration.loadConfiguration(messagesFile);
     }
 }
