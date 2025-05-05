@@ -45,7 +45,7 @@ public class RankUpgradeMenuListener implements Listener {
             return;
         }
 
-        String menutitle = plugin.getMessageManager().getRaw("gui-rankup-title").replace("{page}", Integer.toString(page));
+        String menutitle = plugin.getMessageManager().getRaw("gui-rankup-title").replace("%page%", Integer.toString(page));
 
         if (!title.equals(menutitle)) return;
 
@@ -139,7 +139,7 @@ public class RankUpgradeMenuListener implements Listener {
                 String previousPerm = previousRank.getPermission();
 
                 if (!player.hasPermission(previousPerm)) {
-                    String message = plugin.getMessageManager().getMessage("rank-requirement").replace("{previous}", previousRank.getDisplayName());
+                    String message = plugin.getMessageManager().getMessage("rank-requirement").replace("%previous-rank%", previousRank.getDisplayName());
                     player.sendMessage(message);
                     return;
                 }
@@ -152,7 +152,7 @@ public class RankUpgradeMenuListener implements Listener {
                 plugin.getEconomy().withdrawPlayer(player, price);
                 Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "lp user " + player.getName() + " permission set " + perm);
 
-                String message = plugin.getMessageManager().getMessage("rank-earned").replace("{price}", String.valueOf(price)).replace("{rank}",
+                String message = plugin.getMessageManager().getMessage("rank-earned").replace("%price%", String.valueOf(price)).replace("%rank%",
                         String.valueOf(rankSettingsManager.getRankSettingsByPermission(perm).getDisplayName()));
                 player.sendMessage(message);
 
@@ -160,7 +160,7 @@ public class RankUpgradeMenuListener implements Listener {
                     new PaginatedRankUpgradeMenu(rankSettingsManager, plugin).open(player, currentPage);
                 }, 5L);
             } else {
-                String message = plugin.getMessageManager().getMessage("insufficient-balance").replace("{price}", String.valueOf(price));
+                String message = plugin.getMessageManager().getMessage("insufficient-balance").replace("%price%", String.valueOf(price));
                 player.sendMessage(message);
             }
             return;
@@ -188,7 +188,7 @@ public class RankUpgradeMenuListener implements Listener {
             return;
         }
 
-        String menutitle = plugin.getMessageManager().getRaw("gui-rankup-title").replace("{page}", Integer.toString(page));
+        String menutitle = plugin.getMessageManager().getRaw("gui-rankup-title").replace("%page%", Integer.toString(page));
 
         if (!title.equals(menutitle)) return;
 

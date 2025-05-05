@@ -1,5 +1,5 @@
 name: ConduitFly
-version: '1.0.2'
+version: '1.0.3'
 main: org.ogsammaenr.conduitFly.ConduitFly
 api-version: '1.21'
 depend:
@@ -8,6 +8,6 @@ depend:
 commands:
   conduitfly:
     description: ConduitFly ana komutu
-    usage: /<command> [reload|help|rankup]
+    usage: /<command> [reload|help|rankup|area]
     permission: conduitfly.use
     permission-message: §cBu komutu kullanmak için yetkin yok.

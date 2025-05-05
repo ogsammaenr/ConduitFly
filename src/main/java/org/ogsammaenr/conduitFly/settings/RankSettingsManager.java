@@ -44,7 +44,7 @@ public class RankSettingsManager {
 
         Material conduitMaterial = Material.matchMaterial(config.getString("conduit.material"));
         if (conduitMaterial == null) {
-            plugin.getLogger().warning("Geçersiz conduit materyali belirtildi.");
+            plugin.getLogger().warning("Invalid conduit material specified.");
         }
 
         int priorityCounter = 0;
@@ -52,7 +52,7 @@ public class RankSettingsManager {
         for (String rankKey : config.getConfigurationSection("ranks").getKeys(false)) {
             String base = "ranks." + rankKey + ".";
             String permission = config.getString(base + "permission");
-            double radius = config.getDouble(base + "radius");
+            double radius = config.getDouble(base + "radius") + 0.5;
             long duration = config.getLong(base + "duration");
             boolean preventFall = config.getBoolean(base + "prevent-fall-damage");
             double price = config.getDouble(base + "price");

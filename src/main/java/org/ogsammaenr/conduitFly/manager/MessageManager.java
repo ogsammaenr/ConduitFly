@@ -24,12 +24,12 @@ public class MessageManager {
 
     public String getMessage(String key) {
         return ChatColor.translateAlternateColorCodes('&',
-                messages.getString("prefix", "") + messages.getString(key, "§c[HATA: " + key + " bulunamadı]"));
+                messages.getString("prefix", "") + messages.getString(key, "§c[ERROR: " + key + " Undefined]"));
     }
 
     public String getRaw(String key) {
         return ChatColor.translateAlternateColorCodes('&',
-                messages.getString(key, "§c[HATA: " + key + " bulunamadı]"));
+                messages.getString(key, "§c[ERROR: " + key + " Undefined]"));
     }
 
     public List<String> getList(String path) {

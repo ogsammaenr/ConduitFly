@@ -11,7 +11,7 @@ import java.util.List;
 
 public class CommandTabCompleter implements TabCompleter {
 
-    private static final List<String> SUBCOMMANDS = Arrays.asList("help", "rankup", "reload");
+    private static final List<String> SUBCOMMANDS = Arrays.asList("help", "rankup", "reload", "area");
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {

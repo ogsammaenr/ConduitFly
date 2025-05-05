@@ -111,7 +111,7 @@ public class FlightCheckTask implements Listener {
         /*      oyuncu gerçekten uçtuysa        */
         if (event.isFlying()) {
             long duration = rankSettingsManager.getRankSettingsByPermission(rankSettingsManager.getPermission(player)).getDuration();
-            String message = plugin.getMessageManager().getMessage("flight-time").replace("{time}", Long.toString(duration));
+            String message = plugin.getMessageManager().getMessage("flight-time").replace("%time%", Long.toString(duration));
 
             player.sendActionBar(message);
             /*      oyuncuyu uçan oyuncular listesine ekler     */

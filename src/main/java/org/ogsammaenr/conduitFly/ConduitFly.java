@@ -18,6 +18,7 @@ import org.ogsammaenr.conduitFly.manager.PermissionManager;
 import org.ogsammaenr.conduitFly.settings.RankSettingsManager;
 import org.ogsammaenr.conduitFly.tasks.FlightCheckTask;
 import org.ogsammaenr.conduitFly.tasks.FlightTimeTask;
+import org.ogsammaenr.conduitFly.tasks.ParticleDisplayTask;
 
 public final class ConduitFly extends JavaPlugin {
 
@@ -29,6 +30,7 @@ public final class ConduitFly extends JavaPlugin {
     private PermissionManager permissionManager;
     private ConduitListener conduitListener;
     private MessageManager messageManager;
+    private ParticleDisplayTask particleDisplayTask;
 
     private static Economy economy;
 
@@ -58,6 +60,7 @@ public final class ConduitFly extends JavaPlugin {
         this.permissionManager = new PermissionManager(this);
         this.conduitListener = new ConduitListener(this);
         this.messageManager = new MessageManager(this);
+        this.particleDisplayTask = new ParticleDisplayTask(this);
 
 
         /*  dünyalar yüklendikten sonra dosyadaki veriler belleğe yüklenir*/
@@ -120,6 +123,10 @@ public final class ConduitFly extends JavaPlugin {
 
     public MessageManager getMessageManager() {
         return messageManager;
+    }
+
+    public ParticleDisplayTask getParticleDisplayTask() {
+        return particleDisplayTask;
     }
 
     /**************************************************************************************************************/

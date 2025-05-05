@@ -33,7 +33,7 @@ public class PaginatedRankUpgradeMenu {
         if (page < 1) page = 1;
         if (page > totalPages) page = totalPages;
 
-        String message = plugin.getMessageManager().getRaw("gui-rankup-title").replace("{page}", String.valueOf(page));
+        String message = plugin.getMessageManager().getRaw("gui-rankup-title").replace("%page%", String.valueOf(page));
         Inventory gui = Bukkit.createInventory(null, 36, message);
 
         int startIndex = (page - 1) * itemSlots.length;
@@ -72,12 +72,14 @@ public class PaginatedRankUpgradeMenu {
         List<String> loreTemplate = plugin.getMessageManager().getList("rank-lore"); // messages.yml'den çekiliyor
         List<String> lore = new ArrayList<>();
 
+        String fallOn = plugin.getMessageManager().getRaw("fall-damage-on");
+        String fallOff = plugin.getMessageManager().getRaw("fall-damage-off");
         for (String line : loreTemplate) {
             line = line
-                    .replace("{radius}", String.valueOf(rank.getRadius()))
-                    .replace("{duration}", String.valueOf(rank.getDuration()))
-                    .replace("{price}", String.valueOf(rank.getPrice()))
-                    .replace("{fall-damage}", rank.shouldPreventFallDamage() ? "§aAçık" : "§cKapalı");
+                    .replace("%radius%", String.valueOf(rank.getRadius()))
+                    .replace("%duration%", String.valueOf(rank.getDuration()))
+                    .replace("%price%", String.valueOf(rank.getPrice()))
+                    .replace("%fall-damage%", rank.shouldPreventFallDamage() ? fallOn : fallOff);
             lore.add(line);
         }
 

@@ -91,7 +91,7 @@ public class FlightTimeTask extends BukkitRunnable {
 
                 } else {
                     long duration = ((maxDuration * 1000 - (now - startTime)) / 1000);
-                    String message = plugin.getMessageManager().getMessage("flight-time").replace("{time}", Long.toString(duration));
+                    String message = plugin.getMessageManager().getMessage("flight-time").replace("%time%", Long.toString(duration));
                     player.sendActionBar(message);
                 }
             }
