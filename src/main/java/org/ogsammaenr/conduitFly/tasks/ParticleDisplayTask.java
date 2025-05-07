@@ -13,53 +13,39 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-public class ParticleDisplayTask {
+public class ParticleDisplayTask extends BukkitRunnable {
     private final ConduitFly plugin;
 
     public ParticleDisplayTask(ConduitFly plugin) {
         this.plugin = plugin;
     }
 
-    public void showArea(Player player) {
-        Optional<Island> islandIdOpt = IslandUtils.getIsland(player);
-        if (islandIdOpt.isEmpty()) return;
-        Island island = islandIdOpt.get();
+    @Override
+    public void run() {
+        for (Player player : plugin.getServer().getOnlinePlayers()) {
+            if (!plugin.getAreaToggles().containsKey(player.getUniqueId())) continue;
 
-        String islandId = island.getUniqueId();
-        List<Location> conduitLocations = plugin.getConduitCache().getConduit(islandId);
+            Optional<Island> islandOpt = IslandUtils.getIsland(player);
+            if (islandOpt.isEmpty()) continue;
 
-        if (conduitLocations == null || conduitLocations.isEmpty()) {
-            String message = plugin.getMessageManager().getMessage("no-conduit-found");
-            player.sendMessage(message);
-            return;
+            Island island = islandOpt.get();
+            List<Location> conduitLocations = plugin.getConduitCache().getConduit(island.getUniqueId());
+
+            if (conduitLocations.isEmpty() || conduitLocations == null) continue;
+
+            double range = plugin.getRankSettingsManager().
+                    getRankSettingsByPermission(plugin.getRankSettingsManager().getPermission(player)).
+                    getRadius();
+
+            double playery = plugin.getAreaToggles().get(player.getUniqueId());
+
+            showMergedArea(player, conduitLocations, range, playery);
         }
-
-        double playery = player.getLocation().getBlockY();
-
-
-        double range = plugin.getRankSettingsManager().getRankSettingsByPermission(plugin.getRankSettingsManager().getPermission(player)).getRadius();
-
-        new BukkitRunnable() {
-            int ticks = 0;
-            final int maxTicks = 200;
-
-            @Override
-            public void run() {
-                if (ticks >= maxTicks || !player.isOnline()) {
-                    cancel();
-                    return;
-                }
-
-                showMergedArea(player, conduitLocations, range, playery);
-
-                ticks += 5;
-            }
-        }.runTaskTimer(plugin, 0L, 5L);
     }
 
 
     private void spawnParticle(Player player, Location location) {
-        player.spawnParticle(Particle.END_ROD, location, 1, 0, 0, 0, 0);
+        player.spawnParticle(Particle.END_ROD, location, 1, 0, 0, 0, 0, null, true);
     }
 
 

@@ -24,7 +24,7 @@ public class MessageManager {
 
     public String getMessage(String key) {
         return ChatColor.translateAlternateColorCodes('&',
-                messages.getString("prefix", "") + messages.getString(key, "§c[ERROR: " + key + " Undefined]"));
+                messages.getString("general.prefix", "") + messages.getString(key, "§c[ERROR: " + key + " Undefined]"));
     }
 
     public String getRaw(String key) {

@@ -62,7 +62,7 @@ public class ConduitListener implements Listener {
                 if (event.getBlock().getType() == conduitMaterial) {
                     conduitCache.addConduit(uuid, location);
 
-                    String message = plugin.getMessageManager().getMessage("conduit-place");
+                    String message = plugin.getMessageManager().getMessage("conduit.placed");
                     player.sendMessage(message);
                 }
             });
@@ -89,7 +89,7 @@ public class ConduitListener implements Listener {
             Bukkit.getScheduler().runTask(plugin, () -> {
                 if (event.getBlock().getType() != Material.CONDUIT) {
                     conduitCache.removeConduit(uuid, location);
-                    String message = plugin.getMessageManager().getMessage("conduit-break");
+                    String message = plugin.getMessageManager().getMessage("conduit.broken");
                     player.sendMessage(message);
                 }
             });

@@ -23,80 +23,97 @@ public class RankUpgradeMenuListener implements Listener {
     ConduitFly plugin;
     RankSettingsManager rankSettingsManager;
 
+    /**************************************************************************************************************/
+    //  Constructor methodu
     public RankUpgradeMenuListener(ConduitFly plugin) {
         this.plugin = plugin;
         rankSettingsManager = plugin.getRankSettingsManager();
     }
 
+    /**************************************************************************************************************/
+    //  Oyuncu envantere tıkladığında çalışır
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
-        String title = event.getView().getTitle();
+        String title = event.getView().getTitle(); /*   Tıklanan envanterin başlığını alır*/
 
-        // Başlıkta son kısmı almak için boşlukla ayıralım
-        String[] titleParts = title.split(" "); // Başlığı boşluklardan ayırıyoruz
+        /*      Başlığı boşluklardan parçalara ayırır      */
+        String[] titleParts = title.split(" ");
         int page;
-        // Son parçayı sayfa numarası olarak alıyoruz
+
+        /*      Başlığın son parçasını sayfa sayısı olarak almaya çalışır       */
         try {
-            page = Integer.parseInt(titleParts[titleParts.length - 1]); // Son parçayı sayfa numarası olarak alıyoruz
-            // Artık sayfa numarasını 'page' değişkeninde tutuyoruz
+            page = Integer.parseInt(titleParts[titleParts.length - 1]);
+
         } catch (NumberFormatException e) {
-            // Sayfa numarasını alırken hata oluşursa, işlem yapılmaz
-            plugin.getLogger().warning(e.getMessage());
+            /*      eğer bir hata olursa işlem yapmaz       */
             return;
         }
 
-        String menutitle = plugin.getMessageManager().getRaw("gui-rankup-title").replace("%page%", Integer.toString(page));
+        /*      Yükseltme menüsünün adı messages.yml dosyasından alınır     */
+        String menutitle = plugin.getMessageManager().getRaw("rank.gui.title").
+                replace("%page%", Integer.toString(page));
 
+        /*      tıklanan menünün adı yükseltme menüsünün adıyla aynı değilse işlem yapmaz*/
         if (!title.equals(menutitle)) return;
 
+        /*      menü ile oyuncunun envanteri alınır     */
         Inventory clickedInventory = event.getClickedInventory();
         Inventory topInventory = event.getView().getTopInventory();
 
+        /*      Tıklayan oyuncuyu alır      */
         Player player = (Player) event.getWhoClicked();
 
-        // Eğer tıklanan envanter null ise işlem yapma
+        /*      tıklanan envanter boş ise işlem yapmaz      */
         if (clickedInventory == null) return;
 
-        // Shift tıklama ile GUI'ye eşya aktarılmasını engelle
+        /*      shift click yapılmış ise engeller       */
         if (event.isShiftClick()) {
             event.setCancelled(true);
         }
-        // Eğer tıklama üst envantere (GUI) yapılıyorsa iptal et
+        /*      Eğer tıklanan yer menü ise tıklanmayı engelle       */
         if (clickedInventory.equals(topInventory)) {
             event.setCancelled(true);
         }
 
-        // Aşağıdaki kod sadece GUI'ye tıklanmışsa çalışsın
+        /*      menüye tıklanmamışsa işlem yapmaz       */
         if (!clickedInventory.equals(topInventory)) return;
 
+        /*      tıklanan slot boş ise tıklanma engellenir ve devam etmez        */
         ItemStack clicked = event.getCurrentItem();
         if (clicked == null || clicked.getType() == Material.AIR) {
             event.setCancelled(true);
             return;
         }
 
+        /*      Tıklanan itemin bilgileri alınır boş ise devam etmez        */
         ItemMeta meta = clicked.getItemMeta();
         if (meta == null || !meta.hasDisplayName()) {
             event.setCancelled(true);
             return;
         }
 
+        /*      tıklanan itemin adı renksiz olarak alınır       */
         String itemName = ChatColor.stripColor(event.getCurrentItem().getItemMeta().getDisplayName());
+        /*      tıklanma engellenir     */
         event.setCancelled(true);
+
 
         int currentPage = getCurrentPage(title);
         int totalPages = (int) Math.ceil((double) rankSettingsManager.getRankSettingsMap().size() / 4);
 
-        String previousPage = ChatColor.stripColor(plugin.getMessageManager().getRaw("gui-previous-page"));
-        String nextPage = ChatColor.stripColor(plugin.getMessageManager().getRaw("gui-next-page"));
+        String previousPage = ChatColor.stripColor(plugin.getMessageManager().getRaw("rank.gui.previous-page"));
+        String nextPage = ChatColor.stripColor(plugin.getMessageManager().getRaw("rank.gui.next-page"));
 
         // Sayfa kontrolü
+        /*      tıklanan itemin adı önceki sayfa itemiyle aynı ise sayfa değişir*/
         if (itemName.equals(previousPage)) {
             if (currentPage > 1) {
                 new PaginatedRankUpgradeMenu(rankSettingsManager, plugin).open(player, currentPage - 1);
             }
             return;
-        } else if (itemName.equals(nextPage)) {
+        }
+        /*      tıklanan itemin adı sonraki sayfa itemiyle aynı ise sayfa değişir*/
+        else if (itemName.equals(nextPage)) {
             if (currentPage < totalPages) {
                 new PaginatedRankUpgradeMenu(rankSettingsManager, plugin).open(player, currentPage + 1);
             }
@@ -104,12 +121,16 @@ public class RankUpgradeMenuListener implements Listener {
         }
 
         // Rütbe kontrolü
+        /*      Tıklanan item gri boya ise devam eder       */
         if (clicked.getType() == Material.LIGHT_GRAY_DYE) {
+            /*      Rütbeler RankSettingsManager sınıfından alınır*/
             List<RankSettings> sortedRanks = new ArrayList<>(rankSettingsManager.getRankSettingsMap().values());
+            /*      Rütbeler önem sırasına göre sıralanır*/
             sortedRanks.sort(Comparator.comparingInt(RankSettings::getPriority));
 
 
             int clickedIndex = -1;
+            /*      tıklanan itemin hangi rütbeyi belirttiği bulunur*/
             for (int i = 0; i < sortedRanks.size(); i++) {
                 RankSettings rank = sortedRanks.get(i);
                 String display = ChatColor.stripColor("§a" + rank.getDisplayName());
@@ -122,12 +143,13 @@ public class RankUpgradeMenuListener implements Listener {
 
             if (clickedIndex == -1) return;
 
+            /*      tıklanan itemin rütbesi alınır*/
             RankSettings selectedRank = sortedRanks.get(clickedIndex);
             String perm = selectedRank.getPermission();
 
-
+            /*      oyuncu zaten bu perme sahipse devam etmez*/
             if (player.hasPermission(perm)) {
-                String message = plugin.getMessageManager().getMessage("rank-already-owned");
+                String message = plugin.getMessageManager().getMessage("rank.already-owned");
                 player.sendMessage(message);
                 return;
             }
@@ -137,9 +159,9 @@ public class RankUpgradeMenuListener implements Listener {
             } else {
                 RankSettings previousRank = sortedRanks.get(clickedIndex - 1);
                 String previousPerm = previousRank.getPermission();
-
+                /*      oyuncu önceki rütbelere sahip mi kontrol edilir*/
                 if (!player.hasPermission(previousPerm)) {
-                    String message = plugin.getMessageManager().getMessage("rank-requirement").replace("%previous-rank%", previousRank.getDisplayName());
+                    String message = plugin.getMessageManager().getMessage("rank.requirement").replace("%previous-rank%", previousRank.getDisplayName());
                     player.sendMessage(message);
                     return;
                 }
@@ -148,19 +170,23 @@ public class RankUpgradeMenuListener implements Listener {
             double price = selectedRank.getPrice();
             double balance = plugin.getEconomy().getBalance(player);
 
+            /*      oyuncunun bakiyesi kontrol edilir       */
             if (balance > price) {
                 plugin.getEconomy().withdrawPlayer(player, price);
+                /*      konsol üzerinden oyuncuya rütbe verilir     */
                 Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "lp user " + player.getName() + " permission set " + perm);
 
-                String message = plugin.getMessageManager().getMessage("rank-earned").replace("%price%", String.valueOf(price)).replace("%rank%",
+                String message = plugin.getMessageManager().getMessage("rank.earned").replace("%price%", String.valueOf(price)).replace("%rank%",
                         String.valueOf(rankSettingsManager.getRankSettingsByPermission(perm).getDisplayName()));
                 player.sendMessage(message);
 
+                /*      5 tick gecikmeli olarak menüyü yeniler      */
                 Bukkit.getScheduler().runTaskLater(plugin, () -> {
                     new PaginatedRankUpgradeMenu(rankSettingsManager, plugin).open(player, currentPage);
                 }, 5L);
             } else {
-                String message = plugin.getMessageManager().getMessage("insufficient-balance").replace("%price%", String.valueOf(price));
+                /*      oyuncuya mesaj gönderir*/
+                String message = plugin.getMessageManager().getMessage("rank.insufficient-balance").replace("%price%", String.valueOf(price));
                 player.sendMessage(message);
             }
             return;
@@ -171,36 +197,43 @@ public class RankUpgradeMenuListener implements Listener {
         event.setCancelled(true);
     }
 
+    /**************************************************************************************************************/
+
     @EventHandler
     public void onInventoryDrag(InventoryDragEvent event) {
         String title = event.getView().getTitle();
 
-        // Başlıkta son kısmı almak için boşlukla ayıralım
-        String[] titleParts = title.split(" "); // Başlığı boşluklardan ayırıyoruz
+        /*      başlığı parçalara ayıralım      */
+        String[] titleParts = title.split(" ");
         int page;
-        // Son parçayı sayfa numarası olarak alıyoruz
+
+        /*      son parçayı sayfa sayısı olarak almaya çalışır*/
         try {
-            page = Integer.parseInt(titleParts[titleParts.length - 1]); // Son parçayı sayfa numarası olarak alıyoruz
-            // Artık sayfa numarasını 'page' değişkeninde tutuyoruz
+            page = Integer.parseInt(titleParts[titleParts.length - 1]);
+
         } catch (NumberFormatException e) {
-            // Sayfa numarasını alırken hata oluşursa, işlem yapılmaz
-            plugin.getLogger().warning(e.getMessage());
+            /*      sayfa sayısı alınamazsa çalışmaz*/
             return;
         }
 
-        String menutitle = plugin.getMessageManager().getRaw("gui-rankup-title").replace("%page%", Integer.toString(page));
+        /*      menünün ismi messages.ymlden alınır     */
+        String menutitle = plugin.getMessageManager().getRaw("rank.gui.title").replace("%page%", Integer.toString(page));
 
+        /*      tıklanan menü ismi aynı değilse işlem yapmaz*/
         if (!title.equals(menutitle)) return;
 
+        /*      menüdeki sürükleme işlemleri engellenir*/
         Inventory topInventory = event.getView().getTopInventory();
         for (int slot : event.getRawSlots()) {
             if (slot < topInventory.getSize()) {
-                event.setCancelled(true); // GUI'ye sürükleme ile eşya bırakmayı engelle
+                event.setCancelled(true);
                 return;
             }
         }
     }
 
+    /**************************************************************************************************************/
+    //  aktif sayfayı döndürür
     private int getCurrentPage(String title) {
         String[] titleParts = title.split(" ");
         return Integer.parseInt(titleParts[titleParts.length - 1]);

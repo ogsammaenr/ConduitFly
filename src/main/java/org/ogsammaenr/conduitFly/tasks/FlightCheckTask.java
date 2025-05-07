@@ -13,12 +13,12 @@ import org.ogsammaenr.conduitFly.settings.RankSettings;
 import org.ogsammaenr.conduitFly.settings.RankSettingsManager;
 import org.ogsammaenr.conduitFly.util.IslandUtils;
 
-import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class FlightCheckTask implements Listener {
 
-    private final org.ogsammaenr.conduitFly.ConduitFly plugin;
+    private final ConduitFly plugin;
     private final ConduitCache conduitCache;
     private final RankSettingsManager rankSettingsManager;
 
@@ -34,14 +34,21 @@ public class FlightCheckTask implements Listener {
     //  Oyuncu hareket ettiğinde çalışır
     @EventHandler
     public void onPlayerMove(PlayerMoveEvent event) {
+
+        Player player = event.getPlayer();
+
+        if (plugin.getFlightTimeTask().getFlyingPlayers().containsKey(player.getUniqueId()) && player.isOnGround()) {
+            plugin.getFlightTimeTask().getFlyingPlayers().remove(player.getUniqueId());
+
+            String message = plugin.getMessageManager().getMessage("flight.player-landed");
+            player.sendActionBar(message);
+        }
         /*      Konum değişikliği olup olmadığını kontrol et (Kafa çevirmeyi dikkate alma)       */
         if (event.getFrom().getBlockX() == event.getTo().getBlockX() &&
                 event.getFrom().getBlockY() == event.getTo().getBlockY() &&
                 event.getFrom().getBlockZ() == event.getTo().getBlockZ()) {
             return;
         }
-
-        Player player = event.getPlayer();
 
         /*      çeşitli kontroller      */
         if (shouldIgnore(player)) {
@@ -77,14 +84,19 @@ public class FlightCheckTask implements Listener {
                             player.setAllowFlight(true);
                         }
                     }, 1L);
-                } else if (plugin.getFlightTimeTask().getFlyingPlayers().containsKey(player.getUniqueId()) && player.isOnGround()) {
-                    plugin.getFlightTimeTask().getFlyingPlayers().remove(player.getUniqueId());
-
-                    String message = plugin.getMessageManager().getMessage("player-landed");
-                    player.sendActionBar(message);
                 }
+
             } else {
-                player.setAllowFlight(false);
+                if (player.getAllowFlight()) {
+                    if (player.isFlying()) {
+                        String message = plugin.getMessageManager().getMessage("flight.area-exit");
+                        player.sendActionBar(message);
+                        plugin.getFlightTimeTask().getFlyingPlayers().remove(player.getUniqueId());
+                    }
+
+                    player.setAllowFlight(false);
+                }
+
             }
         }
     }
@@ -101,7 +113,7 @@ public class FlightCheckTask implements Listener {
         }
 
         /*      uçan oyuncuların verilerini getirir     */
-        Map<UUID, Long> flyingPlayers = plugin.getFlightTimeTask().getFlyingPlayers();
+        ConcurrentHashMap<UUID, Long> flyingPlayers = plugin.getFlightTimeTask().getFlyingPlayers();
 
         /*      oyuncu zaten uçuyorsa tekrar kontol etmez       */
         if (flyingPlayers.containsKey(player.getUniqueId())) {
@@ -111,7 +123,7 @@ public class FlightCheckTask implements Listener {
         /*      oyuncu gerçekten uçtuysa        */
         if (event.isFlying()) {
             long duration = rankSettingsManager.getRankSettingsByPermission(rankSettingsManager.getPermission(player)).getDuration();
-            String message = plugin.getMessageManager().getMessage("flight-time").replace("%time%", Long.toString(duration));
+            String message = plugin.getMessageManager().getMessage("flight.time-left").replace("%time%", Long.toString(duration));
 
             player.sendActionBar(message);
             /*      oyuncuyu uçan oyuncular listesine ekler     */
@@ -121,7 +133,7 @@ public class FlightCheckTask implements Listener {
     }
 
     /**************************************************************************************************************/
-    //  çeşitli kontroller
+//  çeşitli kontroller
     private boolean shouldIgnore(Player player) {
         /*      oyuncunun bypassconduit permi var mı kontrol et     */
         if (player.hasPermission("conduitfly.bypassconduit")) {
@@ -139,7 +151,7 @@ public class FlightCheckTask implements Listener {
     }
 
     /**************************************************************************************************************/
-    //  oyuncular fall damage aldığında çalışır
+//  oyuncular fall damage aldığında çalışır
     @EventHandler
     public void onFallDamage(EntityDamageEvent event) {
         /*      hasarı alan oyuncu mu       */

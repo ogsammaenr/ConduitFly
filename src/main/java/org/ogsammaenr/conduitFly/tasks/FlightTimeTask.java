@@ -1,16 +1,17 @@
 package org.ogsammaenr.conduitFly.tasks;
 
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.ogsammaenr.conduitFly.ConduitFly;
 import org.ogsammaenr.conduitFly.settings.RankSettings;
 import org.ogsammaenr.conduitFly.settings.RankSettingsManager;
 
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class FlightTimeTask extends BukkitRunnable {
 
@@ -18,7 +19,7 @@ public class FlightTimeTask extends BukkitRunnable {
     private final RankSettingsManager rankSettingsManager;
 
     /*      Uçan oyuncular için bir hashmap oluştur*/
-    private final Map<UUID, Long> flyingPlayers = new HashMap<>();
+    private final ConcurrentHashMap<UUID, Long> flyingPlayers = new ConcurrentHashMap<>();
 
     /**************************************************************************************************************/
     //  constructor methodu
@@ -30,7 +31,7 @@ public class FlightTimeTask extends BukkitRunnable {
 
     /**************************************************************************************************************/
     /*      uçan oyuncuların verilerini döndürü     */
-    public Map<UUID, Long> getFlyingPlayers() {
+    public ConcurrentHashMap<UUID, Long> getFlyingPlayers() {
         return flyingPlayers;
     }
 
@@ -67,6 +68,9 @@ public class FlightTimeTask extends BukkitRunnable {
             }
             /*      oyuncu yere inmişse verisi silinir*/
             if (player.isOnGround()) {
+                String message = plugin.getMessageManager().getMessage("flight.player-landed");
+                player.sendActionBar(message);
+
                 iterator.remove();
 
             }
@@ -82,16 +86,18 @@ public class FlightTimeTask extends BukkitRunnable {
 
                 /*      oyuncunun süresi dolmuşsa uçuşu kapatılır verisi kaldırılır     */
                 if (now - startTime >= maxDuration * 1000) {
-                    String message = plugin.getMessageManager().getMessage("flight-time-expired");
+                    String message = plugin.getMessageManager().getMessage("flight.time-expired");
                     player.sendActionBar(message);
+                    iterator.remove();
+                    if (player.getGameMode() == GameMode.CREATIVE || player.getGameMode() == GameMode.SPECTATOR) {
+                        continue;
+                    }
                     player.setAllowFlight(false);
                     player.setFlying(false);
-                    iterator.remove();
-
 
                 } else {
                     long duration = ((maxDuration * 1000 - (now - startTime)) / 1000);
-                    String message = plugin.getMessageManager().getMessage("flight-time").replace("%time%", Long.toString(duration));
+                    String message = plugin.getMessageManager().getMessage("flight.time-left").replace("%time%", Long.toString(duration));
                     player.sendActionBar(message);
                 }
             }

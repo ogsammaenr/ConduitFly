@@ -1,56 +1,91 @@
-#   permlerin isimleri ve adedi değiştirilebilir
-#
-#     **example perm**
-#  yourPermission:
-#    permission: "conduitfly.yourPermission"
-#    radius: 20.0
-#    duration: 15
-#    price: 500
-#    display-name: "your permission name"
+# +-------------------------------------------------------------+
+# |                  ConduitFly Plugin Ayarları                 |
+# |   Bu dosyada rütbeler, GUI, conduit ayarları ve görsel      |
+# |   özellikler yapılandırılır. Değişiklikten sonra            |
+# |   /conduitfly reload komutunu kullanmayı unutmayın.         |
+# +-------------------------------------------------------------+
+
+
+#    ️ GUI Settings
+rank-gui:
+  item-slots: [ 10, 12, 14, 16 ]
+  active-rank-material: "LIME_DYE" #                  Oyuncunun sahip olduğu rütbede gösterilecek item
+  inactive-rank-material: "LIGHT_GRAY_DYE" #          Sahip olmadığı rütbe için gösterilecek item
+  filler-material: "GRAY_STAINED_GLASS_PANE" #        Arka plan itemi
+  bottom-bar-material: "BLACK_STAINED_GLASS_PANE" #   En alt satır itemi
+
+  previous-page-material: "ARROW"
+  next-page-material: "ARROW"
+
+
+# Conduit materyali
+conduit:
+  material: "CONDUIT"
+
+# Custom üretim olsun mu
+custom-recipe: true
+
+# Custom craft
+conduit-recipe:
+  shape:
+    - "GGG"
+    - "EHE"
+    - "GGG"
+  ingredients:
+    G: PRISMARINE_CRYSTALS
+    E: NAUTILUS_SHELL
+    H: HEART_OF_THE_SEA
+
+# --Rütbe ayarları--
+# Her bir rütbe için display name benzersiz olarak kullanılmalıdır (örneğin: default, level1, vip).
+# Rütbe sırası, aşağıdaki sıraya göre belirlenir
 
 ranks:
-  default: #                                Oyuncunun hiçbir yetkisi yoksa çalışır
-    permission: "conduitfly.default"  #     zorunlu
-    radius: 10.0
-    duration: 3
-    prevent-fall-damage: false
-    price: 60
-    display-name: "varsayılan"
+
+  default: #      Oyuncunun hiçbir yetkisi yoksa bu ayarlar geçerli olur.
+    permission: "conduitfly.default"
+    radius: 10.0 #                            Conduit etkisinin yarıçapı (sadece yatay)
+    duration: 3 #                             Uçuş süresi (saniye)
+    prevent-fall-damage: false #              Düşme hasarı engellensin mi?
+    price: 60 #                               Bu rütbenin yükseltme fiyatı
+    display-name: "Varsayılan" #              Menü'de görünecek isim
+
   level1:
     permission: "conduitfly.level1"
     radius: 15.0
     duration: 5
     prevent-fall-damage: false
     price: 100
-    display-name: "level 1"
+    display-name: "Level 1"
+
   level2:
     permission: "conduitfly.level2"
     radius: 20.0
     duration: 10
     prevent-fall-damage: false
     price: 1000
-    display-name: "vip"
+    display-name: "VIP"
+
   level3:
     permission: "conduitfly.level3"
     radius: 25.0
     duration: 15
     prevent-fall-damage: true
     price: 1500
-    display-name: "admin"
+    display-name: "Admin"
+
   level4:
     permission: "conduitfly.level4"
     radius: 25.0
     duration: 20
     prevent-fall-damage: true
     price: 2000
-    display-name: "op"
+    display-name: "OP"
+
   level5:
     permission: "conduitfly.level5"
     radius: 30.0
     duration: 30
     prevent-fall-damage: true
     price: 5000
-    display-name: "op"
-
-conduit:
-  material: "CONDUIT"
+    display-name: "OP+"

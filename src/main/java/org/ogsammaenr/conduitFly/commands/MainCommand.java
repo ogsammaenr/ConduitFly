@@ -4,12 +4,9 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.player.PlayerQuitEvent;
 import org.ogsammaenr.conduitFly.ConduitFly;
 import org.ogsammaenr.conduitFly.gui.PaginatedRankUpgradeMenu;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -52,7 +49,8 @@ public class MainCommand implements CommandExecutor {
                 handleArea(sender);
                 break;
             default:
-                sender.sendMessage("§cBilinmeyen komut. §7'/conduitfly help' yazarak komutları görebilirsin.");
+                String message = plugin.getMessageManager().getMessage("general.unknown-command");
+                sender.sendMessage(message);
                 break;
         }
 
@@ -64,14 +62,15 @@ public class MainCommand implements CommandExecutor {
     private void handleReload(CommandSender sender) {
         /*      komudu yazanın yetkisi var mı kontrol edilir        */
         if (!sender.hasPermission("conduitfly.reload")) {
-            String message = plugin.getMessageManager().getMessage("no-permission");
+            String message = plugin.getMessageManager().getMessage("general.no-permission");
             sender.sendMessage(message);
             return;
         }
         /*      plugin reloadlanır      */
         plugin.reloadPlugin();
+        plugin.registerCustomConduitRecipe();
 
-        String message = plugin.getMessageManager().getMessage("reload-success");
+        String message = plugin.getMessageManager().getMessage("general.reload-success");
         sender.sendMessage(message);
     }
 
@@ -83,12 +82,14 @@ public class MainCommand implements CommandExecutor {
         for (String line : helpMessages) {
             sender.sendMessage(line);
         }
-        
+
     }
 
+    /**************************************************************************************************************/
+    //  /conduitfly rankup yazıldığında çalışır
     private void handleRankup(CommandSender sender) {
         if (!(sender instanceof Player)) {
-            String message = plugin.getMessageManager().getMessage("only-players-command");
+            String message = plugin.getMessageManager().getMessage("general.only-players");
 
             sender.sendMessage(message);
             return;
@@ -98,37 +99,33 @@ public class MainCommand implements CommandExecutor {
         new PaginatedRankUpgradeMenu(plugin.getRankSettingsManager(), plugin).open((org.bukkit.entity.Player) sender, 1);
     }
 
-
-    private final Map<UUID, Long> areaCooldowns = new HashMap<>();
-    private static final long AREA_COOLDOWN_MS = 5000; // 5 saniye
-
+    /**************************************************************************************************************/
+    //  /conduitfly area yazıldığında çalışır
     private void handleArea(CommandSender sender) {
+        /*      komudu yazan kişi oyuncu mu kontrol edilir      */
         if (!(sender instanceof Player player)) {
-            String message = plugin.getMessageManager().getMessage("only-players-command");
+            String message = plugin.getMessageManager().getMessage("general.only-players");
             sender.sendMessage(message);
             return;
         }
+
         UUID uuid = player.getUniqueId();
-        long now = System.currentTimeMillis();
 
-        if (areaCooldowns.containsKey(uuid)) {
-            long lastUsed = areaCooldowns.get(uuid);
-            long timeSince = now - lastUsed;
+        double y = player.getLocation().getY();
 
-            if (timeSince < AREA_COOLDOWN_MS) {
-                long secondsLeft = (AREA_COOLDOWN_MS - timeSince) / 1000;
-                String message = plugin.getMessageManager().getMessage("cooldown-message").replace("%seconds%", Long.toString(secondsLeft));
-                player.sendMessage(message);
-                return;
-            }
+        Map<UUID, Double> toggles = plugin.getAreaToggles();
+
+        /*      gösterim açık mı kapalı mı kontrol edilir*/
+        if (toggles.containsKey(uuid)) {
+            toggles.remove(uuid);
+            String message = plugin.getMessageManager().getMessage("conduit.area-toggle-off");
+            player.sendMessage(message);
+        } else {
+            toggles.put(uuid, y);
+            String message = plugin.getMessageManager().getMessage("conduit.area-toggle-on");
+            player.sendMessage(message);
         }
-        areaCooldowns.put(uuid, now);
-        // Conduit alanını gösterecek sınıfı çağır
-        plugin.getParticleDisplayTask().showArea(player);
     }
 
-    @EventHandler
-    public void onPlayerQuit(PlayerQuitEvent event) {
-        areaCooldowns.remove(event.getPlayer().getUniqueId());
-    }
+
 }

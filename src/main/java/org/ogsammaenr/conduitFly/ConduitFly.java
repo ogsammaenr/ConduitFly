@@ -1,8 +1,17 @@
 package org.ogsammaenr.conduitFly;
 
 import net.milkbowl.vault.economy.Economy;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.Recipe;
+import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -20,7 +29,10 @@ import org.ogsammaenr.conduitFly.tasks.FlightCheckTask;
 import org.ogsammaenr.conduitFly.tasks.FlightTimeTask;
 import org.ogsammaenr.conduitFly.tasks.ParticleDisplayTask;
 
-public final class ConduitFly extends JavaPlugin {
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+
+public final class ConduitFly extends JavaPlugin implements Listener {
 
     private ConduitCache conduitCache;
     private ConduitStorage conduitStorage;
@@ -34,6 +46,7 @@ public final class ConduitFly extends JavaPlugin {
 
     private static Economy economy;
 
+    private final ConcurrentHashMap<UUID, Double> areaToggles = new ConcurrentHashMap<>();
 
     /**************************************************************************************************************/
     //  sdece sunucu başlarken çalışır diğer sınıflar bu metod sayesinde bir işe yarar
@@ -44,6 +57,8 @@ public final class ConduitFly extends JavaPlugin {
         this.config = getConfig();
 
         new PermissionManager(this).loadPermissions();
+
+        registerCustomConduitRecipe();
 
         if (!setupEconomy()) {
             getLogger().severe("Vault or a compatible economy plugin is missing!");
@@ -60,7 +75,6 @@ public final class ConduitFly extends JavaPlugin {
         this.permissionManager = new PermissionManager(this);
         this.conduitListener = new ConduitListener(this);
         this.messageManager = new MessageManager(this);
-        this.particleDisplayTask = new ParticleDisplayTask(this);
 
 
         /*  dünyalar yüklendikten sonra dosyadaki veriler belleğe yüklenir*/
@@ -75,7 +89,9 @@ public final class ConduitFly extends JavaPlugin {
         pm.registerEvents(new IslandEventListener(conduitCache, conduitStorage), this);
         pm.registerEvents(new FlightCheckTask(this), this);
         pm.registerEvents(new RankUpgradeMenuListener(this), this);
+        pm.registerEvents(this, this);
         flightTimeTask.runTaskTimer(this, 20L, 20L);
+        new ParticleDisplayTask(this).runTaskTimer(this, 0L, 40L);
 
         getCommand("conduitfly").setExecutor(new MainCommand(this));
         getCommand("conduitfly").setTabCompleter(new CommandTabCompleter());
@@ -129,6 +145,10 @@ public final class ConduitFly extends JavaPlugin {
         return particleDisplayTask;
     }
 
+    public Map<UUID, Double> getAreaToggles() {
+        return areaToggles;
+    }
+
     /**************************************************************************************************************/
     //  plugini reloadlar
     public void reloadPlugin() {
@@ -165,4 +185,94 @@ public final class ConduitFly extends JavaPlugin {
         economy = rsp.getProvider();
         return economy != null;
     }
+
+    @EventHandler
+    public void onPlayerQuit(PlayerQuitEvent event) {
+        UUID uuid = event.getPlayer().getUniqueId();
+        if (areaToggles.containsKey(uuid)) {
+            areaToggles.remove(uuid);
+        }
+    }
+
+    public void registerCustomConduitRecipe() {
+        FileConfiguration config = getConfig();
+
+        if (!config.getBoolean("custom-recipe", false)) {
+            getLogger().info("Custom conduit tarifi devre dışı bırakıldı.");
+            return;
+        }
+
+        // Eski custom conduit tarifini kaldırıyoruz
+        NamespacedKey oldRecipeKey = new NamespacedKey(this, "custom_conduit");
+        Bukkit.removeRecipe(oldRecipeKey);
+        getLogger().info("Old custom conduit recipe has been removed.");
+
+
+        NamespacedKey vanillaKey = NamespacedKey.minecraft("conduit");
+        boolean removed = Bukkit.removeRecipe(vanillaKey);
+        if (removed) {
+            getLogger().info("Default conduit recipe has been removed.");
+        } else {
+            getLogger().warning("Default conduit recipe has not been removed.");
+        }
+
+        List<String> shapeList = config.getStringList("conduit-recipe.shape");
+        if (shapeList.size() != 3) {
+            getLogger().warning("Invalid recipe shape! 3 lines expected.");
+            return;
+        }
+
+        ConfigurationSection section = config.getConfigurationSection("conduit-recipe.ingredients");
+        if (section == null) {
+            getLogger().warning("Ingredients not found.");
+            return;
+        }
+
+        Map<Character, Material> ingredientMap = new HashMap<>();
+        for (String key : section.getKeys(false)) {
+            Material mat = Material.matchMaterial(section.getString(key));
+            if (mat != null && key.length() == 1) {
+                ingredientMap.put(key.charAt(0), mat);
+            } else {
+                getLogger().warning("Invalid ingredient definition: " + key);
+            }
+        }
+
+        // Şekilde kullanılan harflerin malzemesi tanımlı mı?
+        for (String row : shapeList) {
+            for (char c : row.toCharArray()) {
+                if (c != ' ' && !ingredientMap.containsKey(c)) {
+                    getLogger().warning("Undefined letter in recipe shape: '" + c + "'");
+                }
+            }
+        }
+        // Config'ten conduit materyalini alıyoruz
+        String conduitMaterialName = config.getString("conduit.material", "CONDUIT");
+        Material conduitMaterial = Material.matchMaterial(conduitMaterialName);
+
+        if (conduitMaterial == null) {
+            getLogger().warning("Invalid conduit material! Default conduit is being used.");
+            conduitMaterial = Material.CONDUIT;  // Varsayılan conduit
+        }
+
+        ItemStack result = new ItemStack(conduitMaterial);
+        NamespacedKey recipeKey = new NamespacedKey(this, "custom_conduit");
+
+        // Önceki tarif varsa kaldır
+        Iterator<Recipe> it = Bukkit.recipeIterator();
+        while (it.hasNext()) {
+            Recipe r = it.next();
+            if (r instanceof ShapedRecipe shaped && shaped.getKey().equals(recipeKey)) {
+                it.remove();
+            }
+        }
+
+        ShapedRecipe recipe = new ShapedRecipe(recipeKey, result);
+        recipe.shape(shapeList.toArray(new String[0]));
+        ingredientMap.forEach(recipe::setIngredient);
+
+        Bukkit.addRecipe(recipe);
+        getLogger().info("****Custom conduit recipe successfully loaded.****");
+    }
+
 }
