@@ -74,6 +74,13 @@ public final class ConduitFly extends JavaPlugin implements Listener {
             String password = getConfig().getString("storage.mysql.password");
 
             MySQLConnection connection = new MySQLConnection(host, port, database, username, password);
+
+            if (!connection.testConnection()) {
+                getLogger().severe("*****MySQL connection failed! Disabling the plugin.*****");
+                getServer().getPluginManager().disablePlugin(this);
+                return;
+            }
+
             this.conduitDataStorage = new MySQLConduitStorage(connection);
 
         } else {
@@ -145,6 +152,20 @@ public final class ConduitFly extends JavaPlugin implements Listener {
         /*  Sunucu kapatılırken cache'deki conduit verilerini kaydet  */
         if (conduitDataStorage != null) {
             conduitDataStorage.saveAll(conduitCache.getAllConduits());
+        }
+
+        if (conduitDataStorage instanceof MySQLConduitStorage) {
+            getLogger().info("MySQL is active - backing up to the SQLite file...");
+            try {
+                Map<String, List<Location>> allData = conduitDataStorage.loadAll();
+
+                SQLiteConduitStorage sqliteStorage = new SQLiteConduitStorage(this);
+                sqliteStorage.saveAll(allData);
+
+                getLogger().info("MySQL data has been successfully backed up to the conduits.db file.");
+            } catch (Exception e) {
+                getLogger().warning("SQLite backup failed: " + e.getMessage());
+            }
         }
 
         /*  pluginin düzgünce kapandığını konsola yaz*/
@@ -245,14 +266,16 @@ public final class ConduitFly extends JavaPlugin implements Listener {
 
     public void registerCustomConduitRecipe() {
         FileConfiguration config = getConfig();
+        NamespacedKey oldRecipeKey = new NamespacedKey(this, "custom_conduit");
 
-        if (!config.getBoolean("custom-recipe", false)) {
-            getLogger().info("Custom conduit tarifi devre dışı bırakıldı.");
+        if (!config.getBoolean("custom-recipe", true)) {
+            getLogger().info("Custom conduit recipe has been disabled");
+            Bukkit.removeRecipe(oldRecipeKey);
             return;
         }
 
         // Eski custom conduit tarifini kaldırıyoruz
-        NamespacedKey oldRecipeKey = new NamespacedKey(this, "custom_conduit");
+
         Bukkit.removeRecipe(oldRecipeKey);
         getLogger().info("Old custom conduit recipe has been removed.");
 

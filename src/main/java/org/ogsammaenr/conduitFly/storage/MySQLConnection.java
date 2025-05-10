@@ -37,4 +37,12 @@ public class MySQLConnection {
             e.printStackTrace();
         }
     }
+
+    public boolean testConnection() {
+        try (Connection conn = getConnection()) {
+            return conn != null && !conn.isClosed();
+        } catch (SQLException e) {
+            return false;
+        }
+    }
 }

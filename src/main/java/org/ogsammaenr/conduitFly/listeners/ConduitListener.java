@@ -38,7 +38,7 @@ public class ConduitListener implements Listener {
             public void run() {
                 plugin.getConduitDataStorage().saveAll(plugin.getConduitCache().getAllConduits());
             }
-        }.runTaskTimerAsynchronously(plugin, 200, 200);
+        }.runTaskTimerAsynchronously(plugin, 200, 12000);
     }
 
     /**************************************************************************************************************/
