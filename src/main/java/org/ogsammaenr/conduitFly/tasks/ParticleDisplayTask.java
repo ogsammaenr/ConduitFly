@@ -1,7 +1,9 @@
 package org.ogsammaenr.conduitFly.tasks;
 
+import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Particle;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.ogsammaenr.conduitFly.ConduitFly;
@@ -16,8 +18,12 @@ import java.util.Set;
 public class ParticleDisplayTask extends BukkitRunnable {
     private final ConduitFly plugin;
 
-    public ParticleDisplayTask(ConduitFly plugin) {
+
+    private String particleName;
+
+    public ParticleDisplayTask(ConduitFly plugin, String particleType) {
         this.plugin = plugin;
+        this.particleName = particleType;
     }
 
     @Override
@@ -33,6 +39,7 @@ public class ParticleDisplayTask extends BukkitRunnable {
 
             if (conduitLocations.isEmpty() || conduitLocations == null) continue;
 
+
             double range = plugin.getRankSettingsManager().
                     getRankSettingsByPermission(plugin.getRankSettingsManager().getPermission(player)).
                     getRadius();
@@ -45,7 +52,29 @@ public class ParticleDisplayTask extends BukkitRunnable {
 
 
     private void spawnParticle(Player player, Location location) {
-        player.spawnParticle(Particle.END_ROD, location, 1, 0, 0, 0, 0, null, true);
+        Particle particle = Particle.valueOf(particleName.toUpperCase());
+
+        if (particle == Particle.DUST) {
+            ConfigurationSection colorSection = plugin.getConfig().getConfigurationSection("particles.color");
+            Particle.DustOptions dustOptions;
+            if (colorSection != null) {
+
+                int red = colorSection.getInt("red");
+                int green = colorSection.getInt("green");
+                int blue = colorSection.getInt("blue");
+                float size = (float) plugin.getConfig().getDouble("particles.size", 1.0);
+
+                dustOptions = new Particle.DustOptions(Color.fromRGB(red, green, blue), size);
+
+            } else {
+                plugin.getLogger().warning("Color section not found in config.yml. Using default DUST color.");
+                dustOptions = new Particle.DustOptions(Color.RED, 1.0F);
+            }
+            player.spawnParticle(Particle.DUST, location, 1, 0, 0, 0, 0, dustOptions, true);
+
+        } else {
+            player.spawnParticle(particle, location, 1, 0, 0, 0, 0, null, true);
+        }
     }
 
 
@@ -57,6 +86,8 @@ public class ParticleDisplayTask extends BukkitRunnable {
 
         // 1. Tüm alanları topla
         for (Location center : conduitLocations) {
+            if (player.getLocation().getWorld() != center.getWorld()) continue;
+
             double minX = center.getBlockX() - range + 0.5;
             double maxX = center.getBlockX() + range - 0.5;
             double minZ = center.getBlockZ() - range + 0.5;
@@ -70,7 +101,7 @@ public class ParticleDisplayTask extends BukkitRunnable {
         }
 
         // 2. Her blok için kenarları kontrol et, sadece dış çizgileri çiz
-        double y = playery + 1.3;
+        double y = playery + 1.2;
         for (Block2D block : covered) {
             double x = block.x();
             double z = block.z();

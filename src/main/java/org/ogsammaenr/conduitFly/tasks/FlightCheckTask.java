@@ -8,9 +8,9 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerToggleFlightEvent;
 import org.ogsammaenr.conduitFly.ConduitFly;
-import org.ogsammaenr.conduitFly.manager.ConduitCache;
 import org.ogsammaenr.conduitFly.settings.RankSettings;
 import org.ogsammaenr.conduitFly.settings.RankSettingsManager;
+import org.ogsammaenr.conduitFly.storage.ConduitCache;
 import org.ogsammaenr.conduitFly.util.IslandUtils;
 
 import java.util.UUID;

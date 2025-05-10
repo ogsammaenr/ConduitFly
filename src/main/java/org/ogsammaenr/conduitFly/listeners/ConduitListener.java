@@ -10,8 +10,8 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.ogsammaenr.conduitFly.ConduitFly;
-import org.ogsammaenr.conduitFly.manager.ConduitCache;
-import org.ogsammaenr.conduitFly.manager.ConduitStorage;
+import org.ogsammaenr.conduitFly.storage.ConduitCache;
+import org.ogsammaenr.conduitFly.storage.ConduitStorage;
 import org.ogsammaenr.conduitFly.util.IslandUtils;
 import world.bentobox.bentobox.database.objects.Island;
 
@@ -36,7 +36,7 @@ public class ConduitListener implements Listener {
         new BukkitRunnable() {
             @Override
             public void run() {
-                conduitStorage.saveToYML();
+                plugin.getConduitDataStorage().saveAll(plugin.getConduitCache().getAllConduits());
             }
         }.runTaskTimerAsynchronously(plugin, 200, 200);
     }
@@ -87,7 +87,7 @@ public class ConduitListener implements Listener {
             Location location = event.getBlock().getLocation().add(0.5, 0.0, 0.5);
 
             Bukkit.getScheduler().runTask(plugin, () -> {
-                if (event.getBlock().getType() != Material.CONDUIT) {
+                if (event.getBlock().getType() != conduitMaterial) {
                     conduitCache.removeConduit(uuid, location);
                     String message = plugin.getMessageManager().getMessage("conduit.broken");
                     player.sendMessage(message);

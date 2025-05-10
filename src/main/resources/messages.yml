@@ -1,57 +1,55 @@
-# Genel mesajlar
+# General messages
 general:
-  prefix: "&6[Sunucu] "
-  no-permission: "&cBu işlemi yapmak için yetkin yok!"
-  only-players: "&cBu komutu sadece oyuncular kullanabilir."
-  cooldown: "&cBu komutu tekrar kullanmak için %seconds% saniye beklemelisin."
-  reload-success: "&aConduitFly başarıyla yeniden yüklendi!"
-  unknown-command: "&cBilinmeyen komut. &7'/conduitfly help' yazarak komutları görebilirsin."
+  prefix: "&6[Server] "
+  no-permission: "&cYou do not have permission to perform this action!"
+  only-players: "&cThis command can only be used by players."
+  cooldown: "&cYou must wait %seconds% seconds before using this command again."
+  reload-success: "&aConduitFly has been successfully reloaded!"
+  unknown-command: "&cUnknown command. You can see the commands by typing &7'/conduitfly help'."
 
-# Uçuş sistemi mesajları
+# Flight system messages
 flight:
-  enabled: "&aUçma modu etkinleştirildi."
-  disabled: "&cUçma modu devre dışı bırakıldı."
-  time-left: "&bUçuş süresi: &f%time%s"
-  time-expired: "&bUçuş süresi doldu"
-  player-landed: "&7Yere indin, süre sıfırlandı"
-  area-exit: "&7Uçuş alanından çıktın"
+  enabled: "&aFlight mode enabled."
+  disabled: "&cFlight mode disabled."
+  time-left: "&bFlight time left: &f%time%s"
+  time-expired: "&bFlight time expired"
+  player-landed: "&7You have landed, the timer has been reset."
+  area-exit: "&7You exited the flight area."
 
-# Conduit işlemleri
+# Conduit actions
 conduit:
-  placed: "&aConduit yerleştirildi"
-  broken: "&cConduit kırıldı"
-  not-found: "&cBulunduğun adada conduit bulunamadı"
-  area-toggle-on: "&aConduit alanı gösterimi aktif."
-  area-toggle-off: "§cConduit alanı gösterimi kapatıldı."
+  placed: "&aConduit placed"
+  broken: "&cConduit broken"
+  not-found: "&cNo conduit found on the island."
+  area-toggle-on: "&aConduit area display enabled."
+  area-toggle-off: "&cConduit area display disabled."
 
-# Rütbe sistemi
+# Rank system
 rank:
   gui:
-    title: "&bRütbe Yükseltme &7- Sayfa %page%"
-    previous-page: "&c← Önceki Sayfa"
-    next-page: "§aSonraki Sayfa →"
+    title: "&bRank Upgrade &7- Page %page%"
+    previous-page: "&c← Previous Page"
+    next-page: "§aNext Page →"
 
   lore:
-    - "§7Alan çapı: §f%radius%"
-    - "§7Uçuş süresi: §f%duration% saniye"
-    - "§7Düşme hasarı engeli: §f%fall-damage%"
-    - "§7Fiyatı: §f%price%"
-  fall-damage-on: "açık"
-  fall-damage-off: "kapalı"
+    - "&7Area radius: &f%radius%"
+    - "&7Flight time: &f%duration% seconds"
+    - "&7Fall damage protection: &f%fall-damage%"
+    - "&7Price: &f%price%"
+  fall-damage-on: "on"
+  fall-damage-off: "off"
 
-  already-owned: "&eZaten bu rütbeye sahipsin."
-  requirement: "&cBu rütbeyi almak için önce &f%previous-rank% &crütbesine sahip olmalısın."
-  earned: "&aYeni rütbe kazandın: &f%rank% &7(-$%price%)"
-  insufficient-balance: "&cYetersiz bakiye. Gerekli: &f$%price%"
+  already-owned: "&eYou already own this rank."
+  requirement: "&cYou must have the &f%previous-rank% &crank before acquiring this one."
+  earned: "&aYou earned a new rank: &f%rank% &7(-$%price%)"
+  insufficient-balance: "&cInsufficient balance. Required: &f$%price%"
 
-
-
-# Yardım Menüsü
+# Help Menu
 help-menu:
   - "&8&m----------------------------------------"
-  - "&b&lConduitFly v2 &7- Yardım Menüsü"
-  - "&e/conduitfly reload &7- Plugin ayarlarını yeniden yükler."
-  - "&e/conduitfly rankup &7- Rütbe yükseltme menüsünü açar."
-  - "&e/conduitfly area &7- Conduit alanını gösterir."
-  - "&e/conduitfly help &7- Bu yardım menüsünü gösterir."
+  - "&b&lConduitFly v2 &7- Help Menu"
+  - "&e/conduitfly reload &7- Reload the plugin settings."
+  - "&e/conduitfly rankup &7- Opens the rank-up menu."
+  - "&e/conduitfly area &7- Displays the conduit area."
+  - "&e/conduitfly help &7- Shows this help menu."
   - "&8&m----------------------------------------"

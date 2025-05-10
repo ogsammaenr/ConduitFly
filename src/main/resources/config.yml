@@ -1,31 +1,28 @@
 # +-------------------------------------------------------------+
-# |                  ConduitFly Plugin Ayarları                 |
-# |   Bu dosyada rütbeler, GUI, conduit ayarları ve görsel      |
-# |   özellikler yapılandırılır. Değişiklikten sonra            |
-# |   /conduitfly reload komutunu kullanmayı unutmayın.         |
+# |                    ConduitFly Plugin Settings               |
+# |  Configure GUI, conduit behavior, crafting, visuals, and    |
+# |  rank mechanics. After editing, use /conduitfly reload.     |
 # +-------------------------------------------------------------+
 
-
-#    ️ GUI Settings
+# GUI Settings for the Rank Menu
 rank-gui:
-  item-slots: [ 10, 12, 14, 16 ]
-  active-rank-material: "LIME_DYE" #                  Oyuncunun sahip olduğu rütbede gösterilecek item
-  inactive-rank-material: "LIGHT_GRAY_DYE" #          Sahip olmadığı rütbe için gösterilecek item
-  filler-material: "GRAY_STAINED_GLASS_PANE" #        Arka plan itemi
-  bottom-bar-material: "BLACK_STAINED_GLASS_PANE" #   En alt satır itemi
+  item-slots: [ 10, 12, 14, 16 ]                    # Slot positions for rank buttons
+  active-rank-material: "LIME_DYE"                # Material shown for the player's current rank
+  inactive-rank-material: "LIGHT_GRAY_DYE"        # Material shown for ranks not yet unlocked
+  filler-material: "GRAY_STAINED_GLASS_PANE"      # Background filler for unused slots
+  bottom-bar-material: "BLACK_STAINED_GLASS_PANE" # Bottom row decoration
 
-  previous-page-material: "ARROW"
-  next-page-material: "ARROW"
+  previous-page-material: "ARROW"               # Item to go to the previous page
+  next-page-material: "ARROW"                   # Item to go to the next page
 
-
-# Conduit materyali
+# The block material used as a "Conduit"
 conduit:
   material: "CONDUIT"
 
-# Custom üretim olsun mu
-custom-recipe: true
+# Enables or disables the custom crafting recipe for the conduit item
+custom-recipe: false
 
-# Custom craft
+# Custom crafting recipe shape and ingredients for the conduit material
 conduit-recipe:
   shape:
     - "GGG"
@@ -36,19 +33,34 @@ conduit-recipe:
     E: NAUTILUS_SHELL
     H: HEART_OF_THE_SEA
 
-# --Rütbe ayarları--
-# Her bir rütbe için display name benzersiz olarak kullanılmalıdır (örneğin: default, level1, vip).
-# Rütbe sırası, aşağıdaki sıraya göre belirlenir
+# Visual particle effects that indicate the active conduit area
+particles:
+  # The particle effect to use.
+  # See full list here: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Particle.html
+  type: "END_ROD"
+  # Delay in ticks between particle updates (20 ticks = 1 second)
+  delay: 35
 
+  # Only applies to colorable particles like DUST
+  color:
+    # 0 - 255
+    red: 0
+    green: 5
+    blue: 155
+
+  size: 10.0           # Size of the particle (only applies to DUST particles)
+
+# Rank Settings
+# Each rank is linked to a permission node and has customizable stats.
+# The display order in menus follows the order listed here.
 ranks:
-
-  default: #      Oyuncunun hiçbir yetkisi yoksa bu ayarlar geçerli olur.
+  default:
     permission: "conduitfly.default"
-    radius: 10.0 #                            Conduit etkisinin yarıçapı (sadece yatay)
-    duration: 3 #                             Uçuş süresi (saniye)
-    prevent-fall-damage: false #              Düşme hasarı engellensin mi?
-    price: 60 #                               Bu rütbenin yükseltme fiyatı
-    display-name: "Varsayılan" #              Menü'de görünecek isim
+    radius: 10.0                   # Horizontal range of conduit effect
+    duration: 3                    # Flight duration in seconds
+    prevent-fall-damage: false     # Should fall damage be prevented?
+    price: 60                      # Cost to upgrade to the next rank
+    display-name: "Default"        # Displayed name in GUI menus
 
   level1:
     permission: "conduitfly.level1"
@@ -89,3 +101,19 @@ ranks:
     prevent-fall-damage: true
     price: 5000
     display-name: "OP+"
+
+# Storage settings
+# Choose how data is stored: either "mysql" or "sqlite"
+#!!! If you're not sure what this is for, do not change these settings. !!!
+storage:
+  type: sqlite  # Options: mysql or sqlite
+
+  mysql:
+    host: localhost
+    port: 3306
+    database: conduitfly
+    username: root
+    password: ""
+
+  sqlite:
+    file: conduits.db

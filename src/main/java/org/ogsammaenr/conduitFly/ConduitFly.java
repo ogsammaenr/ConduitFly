@@ -2,6 +2,7 @@ package org.ogsammaenr.conduitFly;
 
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.ConfigurationSection;
@@ -15,16 +16,16 @@ import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitTask;
 import org.ogsammaenr.conduitFly.commands.CommandTabCompleter;
 import org.ogsammaenr.conduitFly.commands.MainCommand;
 import org.ogsammaenr.conduitFly.gui.RankUpgradeMenuListener;
 import org.ogsammaenr.conduitFly.listeners.ConduitListener;
 import org.ogsammaenr.conduitFly.listeners.IslandEventListener;
-import org.ogsammaenr.conduitFly.manager.ConduitCache;
-import org.ogsammaenr.conduitFly.manager.ConduitStorage;
 import org.ogsammaenr.conduitFly.manager.MessageManager;
 import org.ogsammaenr.conduitFly.manager.PermissionManager;
 import org.ogsammaenr.conduitFly.settings.RankSettingsManager;
+import org.ogsammaenr.conduitFly.storage.*;
 import org.ogsammaenr.conduitFly.tasks.FlightCheckTask;
 import org.ogsammaenr.conduitFly.tasks.FlightTimeTask;
 import org.ogsammaenr.conduitFly.tasks.ParticleDisplayTask;
@@ -43,6 +44,9 @@ public final class ConduitFly extends JavaPlugin implements Listener {
     private ConduitListener conduitListener;
     private MessageManager messageManager;
     private ParticleDisplayTask particleDisplayTask;
+    private BukkitTask particleTask;
+
+    private ConduitDataStorage conduitDataStorage;
 
     private static Economy economy;
 
@@ -54,6 +58,29 @@ public final class ConduitFly extends JavaPlugin implements Listener {
     public void onEnable() {
         // Config dosyasını yükle
         saveDefaultConfig();
+
+        String storageType = getConfig().getString("storage.type", "sqlite").toLowerCase();
+
+        if (storageType.equals("sqlite")) {
+            getLogger().info("Using SQLite storage");
+            this.conduitDataStorage = new SQLiteConduitStorage(this);
+        } else if (storageType.equals("mysql")) {
+            getLogger().info("Using MySQL storage");
+
+            String host = getConfig().getString("storage.mysql.host");
+            String port = getConfig().getString("storage.mysql.port");
+            String database = getConfig().getString("storage.mysql.database");
+            String username = getConfig().getString("storage.mysql.username");
+            String password = getConfig().getString("storage.mysql.password");
+
+            MySQLConnection connection = new MySQLConnection(host, port, database, username, password);
+            this.conduitDataStorage = new MySQLConduitStorage(connection);
+
+        } else {
+            getLogger().warning("Unknown storage type in config.yml! Defaulting to SQLite.");
+            this.conduitDataStorage = new SQLiteConduitStorage(this);
+        }
+
         this.config = getConfig();
 
         new PermissionManager(this).loadPermissions();
@@ -70,7 +97,7 @@ public final class ConduitFly extends JavaPlugin implements Listener {
         this.rankSettingsManager = new RankSettingsManager(config, this);
 
         this.conduitCache = new ConduitCache(this);
-        this.conduitStorage = new ConduitStorage(this, conduitCache);
+
         this.flightTimeTask = new FlightTimeTask(this);
         this.permissionManager = new PermissionManager(this);
         this.conduitListener = new ConduitListener(this);
@@ -79,19 +106,29 @@ public final class ConduitFly extends JavaPlugin implements Listener {
 
         /*  dünyalar yüklendikten sonra dosyadaki veriler belleğe yüklenir*/
         getServer().getScheduler().runTask(this, () -> {
-            conduitStorage.loadFromYML();
+            Map<String, List<Location>> loadedData = conduitDataStorage.loadAll();
+            this.conduitCache.getAllConduits().putAll(loadedData);
+            getLogger().info("Loaded " + loadedData.size() + " islands from " + storageType + ".");
+
             getLogger().info("*************Conduits loaded***************");
         });
 
         /*  diğer sınıfların kaydı yapılır  */
         PluginManager pm = getServer().getPluginManager();
         pm.registerEvents(conduitListener, this);
-        pm.registerEvents(new IslandEventListener(conduitCache, conduitStorage), this);
+        pm.registerEvents(new IslandEventListener(this), this);
         pm.registerEvents(new FlightCheckTask(this), this);
         pm.registerEvents(new RankUpgradeMenuListener(this), this);
         pm.registerEvents(this, this);
         flightTimeTask.runTaskTimer(this, 20L, 20L);
-        new ParticleDisplayTask(this).runTaskTimer(this, 0L, 40L);
+
+        /**=========Partükül ayarları=========*/
+
+        long delay = getConfig().getLong("particles.delay", 40);
+        String particleType = getConfig().getString("particles.type");
+        particleTask = new ParticleDisplayTask(this, particleType).runTaskTimer(this, 0L, delay);
+
+        /**===================================*/
 
         getCommand("conduitfly").setExecutor(new MainCommand(this));
         getCommand("conduitfly").setTabCompleter(new CommandTabCompleter());
@@ -106,8 +143,8 @@ public final class ConduitFly extends JavaPlugin implements Listener {
     @Override
     public void onDisable() {
         /*  Sunucu kapatılırken cache'deki conduit verilerini kaydet  */
-        if (conduitStorage != null) {
-            conduitStorage.saveOnShutdown();
+        if (conduitDataStorage != null) {
+            conduitDataStorage.saveAll(conduitCache.getAllConduits());
         }
 
         /*  pluginin düzgünce kapandığını konsola yaz*/
@@ -149,6 +186,10 @@ public final class ConduitFly extends JavaPlugin implements Listener {
         return areaToggles;
     }
 
+    public ConduitDataStorage getConduitDataStorage() {
+        return conduitDataStorage;
+    }
+
     /**************************************************************************************************************/
     //  plugini reloadlar
     public void reloadPlugin() {
@@ -161,6 +202,14 @@ public final class ConduitFly extends JavaPlugin implements Listener {
 
         /*      rütbe ayarları yeniden oluşturulur      */
         rankSettingsManager.loadRankSettings(getConfig());
+
+        if (particleTask != null) {
+            particleTask.cancel();
+        }
+        long delay = getConfig().getLong("particles.delay", 40);
+        String particleType = getConfig().getString("particles.type");
+        particleTask = new ParticleDisplayTask(this, particleType).runTaskTimer(this, 0L, delay);
+
 
         /*      conduit materyali configden alınır      */
         Material material = Material.matchMaterial(getConfig().getString("conduit.material"));

@@ -3,21 +3,22 @@ package org.ogsammaenr.conduitFly.listeners;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.ogsammaenr.conduitFly.manager.ConduitCache;
-import org.ogsammaenr.conduitFly.manager.ConduitStorage;
+import org.ogsammaenr.conduitFly.ConduitFly;
+import org.ogsammaenr.conduitFly.storage.ConduitCache;
+import org.ogsammaenr.conduitFly.storage.ConduitDataStorage;
 import world.bentobox.bentobox.api.events.island.IslandDeleteEvent;
 import world.bentobox.bentobox.api.events.island.IslandResetEvent;
 
 public class IslandEventListener implements Listener {
 
     private final ConduitCache cache;
-    private final ConduitStorage storage;
+    private final ConduitDataStorage storage;
 
     /**************************************************************************************************************/
     //  constructor metodu
-    public IslandEventListener(ConduitCache cache, ConduitStorage storage) {
-        this.cache = cache;
-        this.storage = storage;
+    public IslandEventListener(ConduitFly plugin) {
+        this.cache = plugin.getConduitCache();
+        storage = plugin.getConduitDataStorage();
     }
 
     /**************************************************************************************************************/
@@ -29,7 +30,7 @@ public class IslandEventListener implements Listener {
         /*  veriler bellekten kaldırılır  */
         cache.removeIslandConduits(islandID);
 
-        /*  veriler conduits.yml dosyasından kaldırılır  */
+        /*  veriler veritabanından kaldırılır  */
         storage.removeIslandData(islandID);
     }
 
@@ -42,7 +43,7 @@ public class IslandEventListener implements Listener {
         /*  veriler bellekten kaldırılır  */
         cache.removeIslandConduits(islandID);
 
-        /*  veriler conduits.yml dosyasından kaldırılır  */
+        /*  veriler veritabanından kaldırılır  */
         storage.removeIslandData(islandID);
     }
 }
