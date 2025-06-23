@@ -1,41 +1,97 @@
-# ConduitFly Plugin
+# ConduitFly
 
-ConduitFly is a Minecraft plugin that allows players to fly within designated areas around Conduits. It integrates with permissions and rank systems, as well as providing particle effects to visualize the area of flight.
+**ConduitFly** is a Minecraft plugin designed for BentoBox -based skyblock servers. It allows players to place customizable **Conduit blocks** on their island to grant **temporary flight** in a configurable radius. Flight duration, area, and fall-damage protection are all customizable based on the player's **rank**.
 
-## Features
+---
 
-- **Flight System**: Allows players to fly within specific areas around Conduits.
-- **Conduit Area Display**: Players can toggle the display of the Conduit’s flight area.
-- **Rank System**: Customizable ranks with different flight durations, radius, and permissions.
-- **Particle Effects**: Visualize the Conduit area with customizable particle effects.
-- **MySQL/SQLite Storage**: Supports saving and loading Conduit data from a MySQL or SQLite database.
-- **Configurable Messages**: Fully configurable messages for various events, including flight mode activation, area toggles, and rank up notifications.
+## ✨ Features
 
-## Installation
+- 🔗 **BentoBox integration**: Flight is managed per-island
+- 🌀 **Placeable Conduit blocks** to grant flight in range
+- 💸 **Rank system**: Players can upgrade ranks with Vault economy
+- 🎯 **Visual particle area indicator**
+- 🔧 Fully configurable via **YAML**
+- 💾 Supports both **SQLite** and **MySQL**
+- 🔄 `/conduitfly reload` to hot-reload changes
+- 🖱️ Paginated **GUI menus** for rank interaction
 
-1. **Download** the latest release of the plugin from the [Releases page](https://github.com/ogsammaenr/ConduitFly/releases).
-2. **Place** the `.jar` file in the `plugins` folder of your server.
-3. **Restart** or **reload** your server to load the plugin.
-4. **Configure** the plugin in the `config.yml` file to customize settings such as particle effects, rank permissions, and Conduit area radius.
+---
 
-## Configuration
+## 🔧 Dependencies
 
-### `config.yml`
+| Dependency   | Purpose                                   |
+|--------------|-------------------------------------------|
+| BentoBox     | Island data access (currently required due to storage logic; may become a soft-depend in future versions) |
+| Vault        | Economy integration                       |
+| Economy plugin | (EssentialsX, CMI, etc.)                |
 
-The plugin configuration file is located in the plugin’s folder (`plugins/ConduitFly/config.yml`). Here you can configure the following:
+> The plugin will not load if required dependencies are missing.
 
-- **Particle Effects**: Customize the particle effects used to visualize the Conduit’s area. For example, the color and size of the particle for the DUST effect.
-- **Rank Settings**: Customize the ranks, including flight duration, area radius, and the fall damage protection.
-- **Messages**: All plugin messages (e.g., flight mode enabled, area toggled) can be customized here.
+---
 
-### `messages.yml`
+## 💻 Installation
 
-The plugin supports full localization of messages. Customize the messages for various events such as flight mode activation, area display toggles, and rank upgrades.
+1. Drop `ConduitFly.jar` into your `plugins/` directory.
+2. Start the server. The following files will be created:
+   - `config.yml`
+3. Adjust settings to your needs.
+4. Use `/conduitfly reload` to apply changes without restarting.
 
-Example:
+---
 
-```yaml
-# Flight mode messages
-flight:
-  enabled: "&aFlight mode enabled."
-  disabled: "&cFlight mode disabled."
+## 🏆 Rank System
+
+Players can open a GUI with `/conduitfly rankup` to view and upgrade their rank. Each rank defines:
+
+- ✈️ **Flight duration** (in seconds)
+- 🌀 **Conduit radius**
+- 🛡️ Optional **fall damage prevention**
+- 💰 **Upgrade cost**
+
+---
+
+## 🛠️ Commands
+
+| Command               | Description                                       |
+|-----------------------|---------------------------------------------------|
+| `/conduitfly reload`  | Reload the configuration                         |
+| `/conduitfly rankup`  | Open the GUI to view/upgrade ranks               |
+| `/conduitfly area`    | Visually display the conduit’s active range      |
+
+---
+
+## 🧩 Support & Contribution
+
+Found a bug, have a feature request, or just want to contribute?
+
+📬 [Open an issue or pull request on GitHub](https://github.com/ogsammaenr/ConduitFly/issues)
+
+We welcome all feedback and contributions!
+
+## 📁 Config Overview
+
+- `conduit.material`: Which block grants flight (default: `CONDUIT`)
+- `ranks`: Defines each rank’s properties
+- `particles`: Visual effect shown within conduit area
+- `storage`: Choose between `sqlite` or `mysql`
+- `rank-gui`: Customize GUI layout and icons
+
+See the `config.yml` for full documentation.
+
+---
+
+## ⚙️ Storage Options
+
+| Type    | Description                                  |
+|---------|----------------------------------------------|
+| SQLite  | Default. Lightweight and easy to use         |
+| MySQL   | For external or large-scale server networks  |
+
+---
+
+## 📜 License
+
+This project is licensed under the **MIT License**.  
+You are free to use, modify, and distribute the plugin as long as the original license and copyright notice are included.
+
+---
